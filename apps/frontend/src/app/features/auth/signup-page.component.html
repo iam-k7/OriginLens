@@ -1,0 +1,84 @@
+<section class="ol-container page">
+  <header class="page__head">
+    <h1>Create your account</h1>
+    <p class="page__lede">Start on the Free plan. Upgrade any time.</p>
+  </header>
+
+  <form class="form" (ngSubmit)="submit()" novalidate>
+    <label class="form__field">
+      <span class="form__label">Display name (optional)</span>
+      <input
+        class="form__input"
+        type="text"
+        name="displayName"
+        autocomplete="nickname"
+        [(ngModel)]="displayName"
+      />
+    </label>
+
+    <label class="form__field">
+      <span class="form__label">Email</span>
+      <input
+        class="form__input"
+        type="email"
+        name="email"
+        autocomplete="email"
+        required
+        [(ngModel)]="email"
+      />
+    </label>
+
+    <label class="form__field">
+      <span class="form__label">Password</span>
+      <input
+        class="form__input"
+        type="password"
+        name="password"
+        autocomplete="new-password"
+        required
+        minlength="8"
+        [(ngModel)]="password"
+      />
+      @if (password) {
+        <span class="form__strength" [class]="'form__strength--' + passwordStrength()">
+          Password strength: {{ passwordStrength() }}
+        </span>
+      }
+    </label>
+
+    <label class="form__field">
+      <span class="form__label">Confirm password</span>
+      <input
+        class="form__input"
+        type="password"
+        name="confirmPassword"
+        autocomplete="new-password"
+        required
+        [(ngModel)]="confirmPassword"
+      />
+    </label>
+
+    <label class="form__agree">
+      <input type="checkbox" name="agreed" [(ngModel)]="agreed" />
+      <span>
+        I agree to the <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.
+      </span>
+    </label>
+
+    @if (error(); as e) {
+      <ol-error-state [message]="e.message" [code]="e.code"></ol-error-state>
+    }
+
+    @if (notice(); as msg) {
+      <p class="form__note" role="status">{{ msg }}</p>
+    }
+
+    <button type="submit" class="form__submit" [disabled]="submitting()">
+      {{ submitting() ? 'Creating account…' : 'Create account' }}
+    </button>
+
+    <p class="form__alt">
+      Already have an account? <a routerLink="/login">Log in</a>.
+    </p>
+  </form>
+</section>

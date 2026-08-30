@@ -1,0 +1,114 @@
+<section class="ol-container page">
+  <header class="page__head">
+    <h1>Pricing</h1>
+    <p class="page__lede">
+      Two simple plans. No permanent storage of your files. Cancel anytime.
+    </p>
+
+    <div class="toggle" role="group" aria-label="Currency">
+      <button
+        type="button"
+        class="toggle__btn"
+        [class.is-active]="currency() === 'USD'"
+        [attr.aria-pressed]="currency() === 'USD'"
+        (click)="setCurrency('USD')"
+      >
+        USD ($)
+      </button>
+      <button
+        type="button"
+        class="toggle__btn"
+        [class.is-active]="currency() === 'INR'"
+        [attr.aria-pressed]="currency() === 'INR'"
+        (click)="setCurrency('INR')"
+      >
+        INR (₹)
+      </button>
+    </div>
+    <p class="toggle__note">
+      INR prices are approximate and based on a configured fallback rate.
+      @if (info().fxSource === 'fallback') {
+        <span>Live FX rates are not currently used.</span>
+      }
+    </p>
+  </header>
+
+  <div class="grid">
+    @for (plan of info().plans; track plan.id) {
+      <article class="plan" [class.plan--pro]="plan.highlight">
+        <header class="plan__head">
+          <h2 class="plan__name">{{ plan.name }}</h2>
+          <p class="plan__price">
+            <span class="plan__amount">{{ displayPrice(plan) }}</span>
+            @if (plan.priceUsd > 0) {
+              <span class="plan__per">/month</span>
+            }
+          </p>
+        </header>
+        <ul class="plan__features">
+          @for (f of plan.features; track f) {
+            <li class="plan__feature">
+              <span class="plan__check" aria-hidden="true">✓</span>
+              <span [innerHTML]="f"></span>
+            </li>
+          }
+        </ul>
+        <a
+          [routerLink]="plan.id === 'free' ? '/signup' : '/signup'"
+          class="plan__cta"
+          [class.plan__cta--primary]="plan.highlight"
+        >
+          {{ plan.cta }}
+        </a>
+      </article>
+    }
+  </div>
+
+  <section class="usage">
+    <h2 class="usage__h2">Free-plan usage</h2>
+    <p class="usage__lede">
+      These limits reset on the first of each month. Pro removes them with
+      a soft cap so abuse monitoring still works.
+    </p>
+    <div class="usage__grid">
+      @for (u of usage; track u.label) {
+        <ol-usage-meter [label]="u.label" [used]="u.used" [limit]="u.limit"></ol-usage-meter>
+      }
+    </div>
+    <p class="usage__note">
+      Live usage tracking appears after authentication lands in Phase 8.
+    </p>
+  </section>
+
+  <section class="faq">
+    <h2>Common questions</h2>
+    <details>
+      <summary>Are my files stored on the server?</summary>
+      <p>
+        No. Images and text are processed in temporary memory and discarded
+        after the result is returned.
+      </p>
+    </details>
+    <details>
+      <summary>How accurate is the AI-signal score?</summary>
+      <p>
+        Probabilistic. The score reflects signals that are consistent with
+        AI-generated content; it is not a definitive verdict.
+      </p>
+    </details>
+    <details>
+      <summary>What counts as one analysis?</summary>
+      <p>
+        One uploaded image or one URL. Metadata sanitization and text
+        analysis have their own counters.
+      </p>
+    </details>
+    <details>
+      <summary>Can I cancel anytime?</summary>
+      <p>
+        Yes. Cancellation is one click; you keep Pro until the end of the
+        billing period.
+      </p>
+    </details>
+  </section>
+</section>

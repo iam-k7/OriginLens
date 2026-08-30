@@ -1,0 +1,101 @@
+// ─────────────────────────────────────────────────────────────────────────
+// OriginLens — Design Tokens
+// Centralized. Components consume these, never hex values directly.
+// ─────────────────────────────────────────────────────────────────────────
+
+:root {
+  // ── Color: base ──────────────────────────────────────────────────────
+  --ol-color-bg: #fffaf6;
+  --ol-color-bg-strong: #fff0e5;
+  --ol-color-fg: #17120e;
+  --ol-color-fg-muted: #5d514d;
+  --ol-color-border: #f4e3d5;
+  --ol-color-border-strong: #eab28a;
+  --ol-color-surface: #ffffff;
+  --ol-color-surface-strong: #fff4ed;
+  --ol-color-bg-muted: #fff5ef;
+
+  // ── Color: brand ─────────────────────────────────────────────────────
+  --ol-color-primary: #ff7a1a;
+  --ol-color-primary-hover: #eb6910;
+  --ol-color-primary-soft: #fff1e7;
+  --ol-color-primary-deep: #d65802;
+  --ol-color-on-primary: #ffffff;
+
+  // ── Color: semantic ──────────────────────────────────────────────────
+  --ol-color-success: #1f9d55;
+  --ol-color-success-soft: #e8f6ee;
+  --ol-color-warning: #b8860b;
+  --ol-color-warning-soft: #fdf6e3;
+  --ol-color-danger: #c0392b;
+  --ol-color-danger-soft: #fdecea;
+  --ol-color-info: #2563eb;
+  --ol-color-info-soft: #e6efff;
+
+  // ── Typography ───────────────────────────────────────────────────────
+  --ol-font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --ol-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+
+  --ol-fs-xs: 0.75rem;
+  --ol-fs-sm: 0.875rem;
+  --ol-fs-md: 1rem;
+  --ol-fs-lg: 1.125rem;
+  --ol-fs-xl: 1.25rem;
+  --ol-fs-2xl: 1.5rem;
+  --ol-fs-3xl: 1.875rem;
+  --ol-fs-4xl: 2.75rem;
+  --ol-fs-5xl: 3.5rem;
+
+  --ol-fw-regular: 400;
+  --ol-fw-medium: 500;
+  --ol-fw-semibold: 600;
+  --ol-fw-bold: 700;
+
+  --ol-lh-tight: 1.15;
+  --ol-lh-normal: 1.5;
+  --ol-lh-loose: 1.7;
+
+  // ── Spacing ──────────────────────────────────────────────────────────
+  --ol-sp-1: 0.25rem;
+  --ol-sp-2: 0.5rem;
+  --ol-sp-3: 0.75rem;
+  --ol-sp-4: 1rem;
+  --ol-sp-5: 1.25rem;
+  --ol-sp-6: 1.5rem;
+  --ol-sp-8: 2rem;
+  --ol-sp-10: 2.5rem;
+  --ol-sp-12: 3rem;
+  --ol-sp-16: 4rem;
+  --ol-sp-20: 5rem;
+
+  // ── Radius ───────────────────────────────────────────────────────────
+  --ol-radius-sm: 8px;
+  --ol-radius-md: 12px;
+  --ol-radius-lg: 18px;
+  --ol-radius-xl: 24px;
+  --ol-radius-full: 9999px;
+
+  // ── Shadow ───────────────────────────────────────────────────────────
+  --ol-shadow-xs: 0 1px 2px rgba(23, 18, 14, 0.04);
+  --ol-shadow-sm: 0 6px 16px rgba(23, 18, 14, 0.06);
+  --ol-shadow-md: 0 14px 28px rgba(23, 18, 14, 0.09);
+  --ol-shadow-lg: 0 20px 46px rgba(255, 122, 26, 0.18);
+
+  // ── Layout ───────────────────────────────────────────────────────────
+  --ol-container-max: 1200px;
+  --ol-container-pad-x: clamp(1rem, 3vw, 2rem);
+  --ol-nav-height: 76px;
+
+  // ── Motion ───────────────────────────────────────────────────────────
+  --ol-ease: cubic-bezier(0.2, 0.6, 0.2, 1);
+  --ol-dur-fast: 120ms;
+  --ol-dur-base: 200ms;
+  --ol-dur-slow: 320ms;
+
+  // ── Z-index ──────────────────────────────────────────────────────────
+  --ol-z-nav: 100;
+  --ol-z-modal: 200;
+  --ol-z-toast: 300;
+}

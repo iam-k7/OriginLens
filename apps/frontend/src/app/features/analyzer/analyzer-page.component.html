@@ -1,0 +1,285 @@
+<section class="ol-container page">
+  <header class="page__head">
+    <h1>Image Analyzer</h1>
+    <p class="page__lede">
+      Inspect metadata, provenance, and AI-generation signals. Files are
+      processed in temporary memory — nothing is stored after the result is
+      returned.
+    </p>
+  </header>
+
+  <div class="page__grid">
+    <!-- ── Input column ──────────────────────────────────────────── -->
+    <div class="page__input">
+      <h2 class="page__h2">1. Add your image</h2>
+
+      <ol-file-dropzone
+        [config]="dropzoneConfig"
+        [allowSvg]="allowSvg"
+        (fileSelected)="onFileSelected($event)"
+        (cleared)="onFileCleared()"
+      ></ol-file-dropzone>
+
+      <div class="page__divider"><span>or</span></div>
+
+      <ol-url-input (urlSubmitted)="onUrlSubmitted($event)"></ol-url-input>
+
+      @if (isLoading()) {
+        <div class="page__loading">
+          <ol-loading-state label="Analyzing image…"></ol-loading-state>
+        </div>
+      }
+
+      @if (isError()) {
+        @if (error(); as e) {
+          <div class="page__error">
+            <ol-error-state
+              [message]="e.message"
+              [code]="e.code"
+              [retryAfter]="e.retry_after"
+            ></ol-error-state>
+          </div>
+        }
+      }
+    </div>
+
+    <!-- ── Result column ─────────────────────────────────────────── -->
+    <div class="page__result">
+      @if (hasResult() && result(); as r) {
+        <!-- AI signal -->
+        <ol-result-card
+          title="AI Generation Signal"
+          [badge]="r.ai_signal.confidence"
+          badgeTone="info"
+          footnote="AI-generation signal is probabilistic. Treat as one piece of evidence among several."
+        >
+          <ol-analysis-score
+            [value]="r.ai_signal.score"
+            label="Signals consistent with AI-generated content"
+            [caption]="r.provider && r.model ? 'via ' + r.provider + ' · ' + r.model : ''"
+            [tone]="r.ai_signal.score > 0.66 ? 'warning' : r.ai_signal.score > 0.4 ? 'neutral' : 'positive'"
+          ></ol-analysis-score>
+
+          <div class="meta-row">
+            <span class="meta-row__label">Confidence</span>
+            <ol-confidence-badge [level]="r.ai_signal.confidence"></ol-confidence-badge>
+          </div>
+
+          <h3 class="result-h3">Signals detected</h3>
+          <ol-signal-list [signals]="r.ai_signal.signals"></ol-signal-list>
+
+          @if (r.ai_signal.explanation) {
+            <h3 class="result-h3">Explanation</h3>
+            <p class="result-p">{{ r.ai_signal.explanation }}</p>
+          }
+
+          @if (r.ai_signal.limitations.length) {
+            <h3 class="result-h3">Limitations</h3>
+            <ol-signal-list [signals]="limitationSignals()"></ol-signal-list>
+          }
+        </ol-result-card>
+
+        <!-- Technical -->
+        <ol-result-card title="Technical">
+          <dl class="kv">
+            <div class="kv__row">
+              <dt>Format</dt>
+              <dd>{{ r.technical.format.toUpperCase() }}</dd>
+            </div>
+            <div class="kv__row">
+              <dt>Dimensions</dt>
+              <dd>{{ formatNumber(r.technical.width) }} × {{ formatNumber(r.technical.height) }} px</dd>
+            </div>
+            <div class="kv__row">
+              <dt>File size</dt>
+              <dd>{{ formatBytes(r.technical.size_bytes) }}</dd>
+            </div>
+            @if (r.technical.mode) {
+              <div class="kv__row">
+                <dt>Color mode</dt>
+                <dd>{{ r.technical.mode }}</dd>
+              </div>
+            }
+          </dl>
+        </ol-result-card>
+
+        <!-- Metadata -->
+        <ol-result-card
+          title="Metadata"
+          badgeTone="warning"
+          badge="may include PII"
+          footnote="OriginLens never persists your image. Removing metadata on your local copy is recommended before sharing."
+        >
+          <ol-metadata-table [sections]="metadataSections()"></ol-metadata-table>
+        </ol-result-card>
+
+        <!-- C2PA -->
+        <ol-result-card
+          title="Provenance · C2PA"
+          [badge]="c2paBadge()"
+          [badgeTone]="c2paTone()"
+          footnote="C2PA is a cryptographic content-credentials standard. A signed manifest is strong evidence of provenance; the absence of one is not evidence of AI generation."
+        >
+          @if (r.c2pa.present) {
+            <dl class="kv">
+              @if (r.c2pa.issuer) {
+                <div class="kv__row">
+                  <dt>Issuer</dt>
+                  <dd>{{ r.c2pa.issuer }}</dd>
+                </div>
+              }
+              @if (r.c2pa.signed_at) {
+                <div class="kv__row">
+                  <dt>Signed at</dt>
+                  <dd>{{ r.c2pa.signed_at }}</dd>
+                </div>
+              }
+              @if (r.c2pa.claim_generator) {
+                <div class="kv__row">
+                  <dt>Claim generator</dt>
+                  <dd>{{ r.c2pa.claim_generator }}</dd>
+                </div>
+              }
+            </dl>
+          } @else {
+            <p class="result-p">
+              No C2PA manifest was found in this image. This is common for
+              screenshots, photos taken on devices that don't sign content,
+              and images that have been re-encoded.
+            </p>
+          }
+        </ol-result-card>
+
+        <!-- Reverse search -->
+        <ol-result-card
+          title="Reverse-image discovery"
+          [badge]="reverseBadge()"
+          [badgeTone]="reverseTone()"
+        >
+          @if (r.reverse_search.available) {
+            @if (r.reverse_search.matches?.length) {
+              <ul class="matches">
+                @for (m of r.reverse_search.matches; track m.url) {
+                  <li class="matches__item">
+                    <a [href]="m.url" target="_blank" rel="noopener noreferrer">{{ m.url }}</a>
+                    @if (m.similarity !== undefined) {
+                      <span class="matches__sim">{{ (m.similarity * 100).toFixed(0) }}% similarity</span>
+                    }
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="result-p">No matches found.</p>
+            }
+          } @else {
+            <p class="result-p">
+              Reverse-image search is not available in this build.
+              @if (r.reverse_search.reason) {
+                <span class="result-p__muted">({{ r.reverse_search.reason }})</span>
+              }
+            </p>
+          }
+        </ol-result-card>
+
+        <!-- Privacy actions -->
+        <ol-result-card
+          title="Privacy actions"
+          badgeTone="info"
+          badge="coming soon"
+          footnote="Metadata removal cleans the file in your browser — it does not change where the image came from."
+        >
+          <ul class="actions">
+            <li class="actions__item actions__item--disabled">
+              <span class="actions__title">Remove metadata (sanitize)</span>
+              <span class="actions__hint">Strips EXIF, IPTC, XMP, and GPS without recompressing pixels.</span>
+            </li>
+            <li class="actions__item actions__item--disabled">
+              <span class="actions__title">Sanitize + download</span>
+              <span class="actions__hint">Cleaned copy is returned for download. Never stored on the server.</span>
+            </li>
+          </ul>
+        </ol-result-card>
+      } @else if (!isLoading() && !isError()) {
+        <div class="empty">
+          <h2 class="empty__title">No analysis yet</h2>
+          <p class="empty__lede">
+            Drop an image, paste one, or submit a public image URL to see
+            metadata, provenance, and AI-signal analysis.
+          </p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- ── Info sections below ──────────────────────────────────────── -->
+  <section class="info">
+    <h2 class="info__h2">What we analyze</h2>
+    <p class="info__lede">
+      OriginLens combines several signals to give you an informed view, never
+      a verdict.
+    </p>
+    <div class="info__grid">
+      <article class="info__card">
+        <h3>C2PA</h3>
+        <p>Cryptographically signed content credentials showing how an image was made and edited.</p>
+      </article>
+      <article class="info__card">
+        <h3>EXIF &amp; metadata</h3>
+        <p>Camera, software, timestamps, and other embedded technical and personal details.</p>
+      </article>
+      <article class="info__card">
+        <h3>Image characteristics</h3>
+        <p>Texture, color distribution, compression artifacts, and other statistical signals.</p>
+      </article>
+      <article class="info__card">
+        <h3>Provenance</h3>
+        <p>Indicators that help establish where the image came from and how it was produced.</p>
+      </article>
+      <article class="info__card">
+        <h3>AI-generation signals</h3>
+        <p>Probabilistic indicators of AI generation. Honest about confidence and limitations.</p>
+      </article>
+      <article class="info__card">
+        <h3>Reverse-image discovery</h3>
+        <p>Find where else an image has appeared online (when a provider is available).</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="info">
+    <h2 class="info__h2">How it works</h2>
+    <ol class="steps">
+      <li><strong>Add your image.</strong> Drop a file, paste one, or submit a public URL.</li>
+      <li><strong>Inspect technical information.</strong> Format, dimensions, color mode, file size.</li>
+      <li><strong>Analyze provenance and AI signals.</strong> Metadata, C2PA, and AI-generation signals.</li>
+      <li><strong>Review evidence.</strong> See confidence, detected signals, and explicit limitations.</li>
+      <li><strong>Optionally sanitize.</strong> Clean a local copy before sharing.</li>
+    </ol>
+  </section>
+
+  <section class="info">
+    <h2 class="info__h2">Looking for one thing in particular?</h2>
+    <div class="info__grid">
+      <a class="focus-card" href="#metadata">
+        <h3>Metadata</h3>
+        <p>EXIF, IPTC, XMP, and other embedded fields.</p>
+      </a>
+      <a class="focus-card" href="#ai-signals">
+        <h3>AI Signals</h3>
+        <p>Probabilistic detection of AI-generated content.</p>
+      </a>
+      <a class="focus-card" href="#c2pa">
+        <h3>C2PA</h3>
+        <p>Signed content credentials and provenance claims.</p>
+      </a>
+      <a class="focus-card" href="#reverse-search">
+        <h3>Reverse Search</h3>
+        <p>Where else this image has appeared online.</p>
+      </a>
+      <a class="focus-card" href="#sanitize">
+        <h3>Privacy Cleaning</h3>
+        <p>Remove metadata without recompressing the image.</p>
+      </a>
+    </div>
+  </section>
+</section>

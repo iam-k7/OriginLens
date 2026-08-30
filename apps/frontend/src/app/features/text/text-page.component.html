@@ -1,0 +1,194 @@
+<section class="ol-container page">
+  <header class="page__head">
+    <h1>Text Intelligence</h1>
+    <p class="page__lede">
+      Analyze text for AI-generation signals, or rewrite it for clarity and
+      natural flow. Positioned as writing assistance, not as a way to evade
+      detection.
+    </p>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Text tools">
+    <button
+      type="button"
+      role="tab"
+      class="tabs__btn"
+      [class.is-active]="tab() === 'analyze'"
+      [attr.aria-selected]="tab() === 'analyze'"
+      (click)="setTab('analyze')"
+    >
+      Analyze
+    </button>
+    <button
+      type="button"
+      role="tab"
+      class="tabs__btn"
+      [class.is-active]="tab() === 'rewrite'"
+      [attr.aria-selected]="tab() === 'rewrite'"
+      (click)="setTab('rewrite')"
+    >
+      Rewrite
+    </button>
+  </div>
+
+  <div class="grid">
+    <!-- ── Editor ─────────────────────────────────────────────── -->
+    <div class="editor">
+      <div class="editor__bar">
+        <label class="editor__upload">
+          <input type="file" accept=".txt" (change)="onFile($event)" />
+          <span>Upload .txt</span>
+        </label>
+        <div class="editor__counts">
+          <span>{{ wordCount() }} words</span>
+          <span class="editor__sep">·</span>
+          <span>{{ charCount() }} chars</span>
+        </div>
+        <button type="button" class="editor__clear" (click)="clear()" [disabled]="!text()">
+          Clear
+        </button>
+      </div>
+
+      <textarea
+        class="editor__textarea"
+        rows="14"
+        placeholder="Paste or type your text here… (min 5 words)"
+        [ngModel]="text()"
+        (ngModelChange)="onTextInput($event)"
+        name="text"
+        aria-label="Text to analyze or rewrite"
+      ></textarea>
+
+      <div class="editor__controls">
+        @if (tab() === 'analyze') {
+          <fieldset class="mode">
+            <legend class="mode__legend">Mode</legend>
+            <label class="mode__opt">
+              <input
+                type="radio"
+                name="mode"
+                value="standard"
+                [checked]="mode() === 'standard'"
+                (change)="setMode('standard')"
+              />
+              <span>Standard</span>
+            </label>
+            <label class="mode__opt">
+              <input
+                type="radio"
+                name="mode"
+                value="deep"
+                [checked]="mode() === 'deep'"
+                (change)="setMode('deep')"
+              />
+              <span>
+                Deep scan
+                <small class="mode__hint">More thorough; uses more model calls.</small>
+              </span>
+            </label>
+          </fieldset>
+        } @else {
+          <fieldset class="mode">
+            <legend class="mode__legend">Tone</legend>
+            @for (t of tones; track t) {
+              <label class="mode__opt">
+                <input
+                  type="radio"
+                  name="tone"
+                  [value]="t"
+                  [checked]="tone() === t"
+                  (change)="tone.set(t)"
+                />
+                <span>{{ t }}</span>
+              </label>
+            }
+          </fieldset>
+        }
+
+        <button
+          type="button"
+          class="run"
+          (click)="run()"
+          [disabled]="!canAnalyze()"
+        >
+          @if (tab() === 'analyze') {
+            {{ mode() === 'deep' ? 'Run deep scan' : 'Analyze text' }}
+          } @else {
+            Rewrite naturally
+          }
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Result panel ──────────────────────────────────────── -->
+    <div class="result">
+      @if (isLoading()) {
+        <ol-loading-state [label]="tab() === 'analyze' ? 'Analyzing…' : 'Rewriting…'"></ol-loading-state>
+      } @else if (isError()) {
+        @if (error(); as e) {
+          <ol-error-state
+            [message]="e.message"
+            [code]="e.code"
+            [retryAfter]="e.retry_after"
+          ></ol-error-state>
+        }
+      } @else if (showResult()) {
+        @if (analysis(); as a) {
+          <ol-result-card
+            title="AI Generation Signal"
+            [badge]="a.ai_signal.confidence"
+            badgeTone="info"
+            footnote="AI-generation signal is probabilistic. Treat as one piece of evidence among several."
+          >
+            <ol-analysis-score
+              [value]="a.ai_signal.score"
+              label="Signals consistent with AI-generated text"
+              [caption]="a.provider && a.model ? 'via ' + a.provider + ' · ' + a.model : ''"
+              [tone]="a.ai_signal.score > 0.66 ? 'warning' : a.ai_signal.score > 0.4 ? 'neutral' : 'positive'"
+            ></ol-analysis-score>
+
+            <div class="meta-row">
+              <span class="meta-row__label">Confidence</span>
+              <ol-confidence-badge [level]="a.ai_signal.confidence"></ol-confidence-badge>
+            </div>
+
+            <h3 class="result-h3">Signals detected</h3>
+            <ol-signal-list [signals]="a.ai_signal.signals"></ol-signal-list>
+
+            @if (a.ai_signal.explanation) {
+              <h3 class="result-h3">Explanation</h3>
+              <p class="result-p">{{ a.ai_signal.explanation }}</p>
+            }
+
+            @if (a.ai_signal.limitations.length) {
+              <h3 class="result-h3">Limitations</h3>
+              <ol-signal-list [signals]="limitationSignals()"></ol-signal-list>
+            }
+          </ol-result-card>
+        }
+
+        @if (rewrite(); as r) {
+          <ol-result-card
+            title="Rewritten text"
+            badgeTone="info"
+            badge="writing assistance"
+            footnote="Rewriting is positioned as writing assistance, not a way to evade AI detection."
+          >
+            <p class="rewrite">{{ r.rewritten }}</p>
+            @if (r.notes.length) {
+              <h3 class="result-h3">Notes</h3>
+              <ol-signal-list [signals]="rewriteNotes()"></ol-signal-list>
+            }
+          </ol-result-card>
+        }
+      } @else {
+        <div class="empty">
+          <h2 class="empty__title">No result yet</h2>
+          <p class="empty__lede">
+            Add at least 5 words, then run an analysis or rewrite.
+          </p>
+        </div>
+      }
+    </div>
+  </div>
+</section>

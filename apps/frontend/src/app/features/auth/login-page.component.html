@@ -1,0 +1,56 @@
+<section class="ol-container page">
+  <header class="page__head">
+    <h1>Log in</h1>
+    <p class="page__lede">Welcome back. Sign in to access your dashboard and usage history.</p>
+  </header>
+
+  <form class="form" (ngSubmit)="submit()" novalidate>
+    <label class="form__field">
+      <span class="form__label">Email</span>
+      <input
+        class="form__input"
+        type="email"
+        name="email"
+        autocomplete="email"
+        required
+        [(ngModel)]="email"
+      />
+    </label>
+
+    <label class="form__field">
+      <span class="form__label">Password</span>
+      <div class="form__pwd">
+        <input
+          class="form__input form__input--pwd"
+          [type]="showPassword() ? 'text' : 'password'"
+          name="password"
+          autocomplete="current-password"
+          required
+          minlength="8"
+          [(ngModel)]="password"
+        />
+        <button type="button" class="form__pwd-toggle" (click)="togglePassword()"
+                [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">
+          {{ showPassword() ? 'Hide' : 'Show' }}
+        </button>
+      </div>
+    </label>
+
+    @if (error(); as e) {
+      <ol-error-state [message]="e.message" [code]="e.code"></ol-error-state>
+    }
+
+    <button type="submit" class="form__submit" [disabled]="submitting()">
+      {{ submitting() ? 'Signing in…' : 'Log in' }}
+    </button>
+
+    <p class="form__alt">
+      Don't have an account? <a routerLink="/signup">Create one</a>.
+    </p>
+
+    <p class="form__note">
+      Auth backend lands in Phase 8. The form validates locally so you can
+      see the full flow.
+    </p>
+  </form>
+</section>

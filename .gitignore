@@ -1,0 +1,112 @@
+# ─────────────────────────────────────────────────────────────────────────
+# OriginLens — .gitignore
+# Anything potentially sensitive or regenerable should be listed here.
+# ─────────────────────────────────────────────────────────────────────────
+
+# ─── Secrets / local config ─────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.env.local
+*.env.*.local
+.claude/settings.local.json
+.claude/settings.local.*.json
+
+# ─── Python ─────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+build/
+dist/
+wheels/
+*.egg-info/
+*.egg
+.eggs/
+.installed.cfg
+*.egg-link
+MANIFEST
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Pytest / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.cache
+.mypy_cache/
+.ruff_cache/
+.pyright_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# ─── Node / Angular / Frontend ─────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# Angular build output
+apps/frontend/.angular/
+apps/frontend/dist/
+apps/frontend/.nitro/
+apps/frontend/.output/
+apps/frontend/coverage/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# ─── Local data / uploads / temp ───────────────────────────────────────
+uploads/
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# ─── IDEs / editors ────────────────────────────────────────────────────
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/launch.json
+*.iml
+*.iws
+*.ipr
+.fleet/
+.cursor/
+
+# ─── OS files ──────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+$RECYCLE.BIN/
+
+# ─── Logs ──────────────────────────────────────────────────────────────
+logs/
+*.log
+
+# ─── Docker / infra local state ────────────────────────────────────────
+.docker/
+data/
+postgres-data/
+redis-data/
+
+# ─── Coverage / test reports ───────────────────────────────────────────
+coverage/
+*.lcov
+junit.xml
+test-results/
+playwright-report/
+.playwright/
