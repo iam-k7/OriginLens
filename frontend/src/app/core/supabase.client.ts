@@ -1,4 +1,4 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 // ─────────────────────────────────────────────────────────────────────────
 // Supabase credentials
@@ -9,12 +9,16 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 const SUPABASE_URL = 'https://lvymkstqztdgkanqmhoh.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_Pmg3pMtsneMOh8XJaBTNsA_sdDeIXMi';
 
-// ─────────────────────────────────────────────────────────────────────────
-// Supabase client
-// ─────────────────────────────────────────────────────────────────────────
-export const supabase: SupabaseClient = createClient(
-  SUPABASE_URL,
-  SUPABASE_PUBLISHABLE_KEY,
-);
+let supabaseClient: SupabaseClient | null = null;
 
-export default supabase;
+export async function getSupabaseClient(): Promise<SupabaseClient> {
+  if (supabaseClient) {
+    return supabaseClient;
+  }
+
+  const { createClient } = await import('@supabase/supabase-js');
+  supabaseClient = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+  return supabaseClient;
+}
+
+export default getSupabaseClient;

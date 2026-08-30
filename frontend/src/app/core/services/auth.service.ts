@@ -1,7 +1,7 @@
 import { Injectable, signal, computed } from '@angular/core';
 import type { Session, User as SupabaseUser } from '@supabase/supabase-js';
 
-import { supabase } from '../supabase.client';
+import { getSupabaseClient } from '../supabase.client';
 
 export interface User {
   id: string;
@@ -66,7 +66,8 @@ export class AuthService {
   }
 
   private async bootstrap(): Promise<void> {
-    const { data, error } = await supabase.auth.getSession();
+    const client = await getSupabaseClient();
+    const { data, error } = await client.auth.getSession();
     if (error) {
       // No session is fine; surface only real errors.
       console.warn('[AuthService] getSession error:', error.message);
@@ -74,14 +75,15 @@ export class AuthService {
     this._session.set(data.session);
     this._supabaseUser.set(data.session?.user ?? null);
 
-    supabase.auth.onAuthStateChange((_event, session) => {
+    client.auth.onAuthStateChange((_event, session) => {
       this._session.set(session);
       this._supabaseUser.set(session?.user ?? null);
     });
   }
 
   async logout(): Promise<void> {
-    await supabase.auth.signOut();
+    const client = await getSupabaseClient();
+    await client.auth.signOut();
     // onAuthStateChange will clear the signals; no manual reset needed.
   }
 }

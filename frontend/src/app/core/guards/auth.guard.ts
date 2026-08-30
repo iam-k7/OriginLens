@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 
-import { supabase } from '../supabase.client';
+import { getSupabaseClient } from '../supabase.client';
 
 /**
  * Auth guard for private routes.
@@ -19,8 +19,9 @@ import { supabase } from '../supabase.client';
  */
 export const authGuard: CanActivateFn = async (_route, state) => {
   const router = inject(Router);
+  const client = await getSupabaseClient();
 
-  const { data, error } = await supabase.auth.getSession();
+  const { data, error } = await client.auth.getSession();
   if (error) {
     // Treat any error reading the session as "not authenticated" and bounce to /login.
     return router.createUrlTree(['/login'], {

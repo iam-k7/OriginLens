@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthError } from '../../core/services/auth.service';
-import { supabase } from '../../core/supabase.client';
+import { getSupabaseClient } from '../../core/supabase.client';
 import { ErrorStateComponent } from '../../shared/components/error-state/error-state.component';
 
 @Component({
@@ -33,7 +33,8 @@ export class LoginPageComponent {
     this.error.set(null);
     this.submitting.set(true);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const client = await getSupabaseClient();
+      const { data, error } = await client.auth.signInWithPassword({
         email: this.email.trim(),
         password: this.password,
       });
