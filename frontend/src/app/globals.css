@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+/* Theme derived from the OriginLens logo: orange gradient mark + near-black wordmark on white. */
+@theme {
+  --color-brand-50: #fff6ed;
+  --color-brand-100: #ffead4;
+  --color-brand-200: #ffd0a8;
+  --color-brand-300: #ffb170;
+  --color-brand-400: #ff8a2e;
+  --color-brand-500: #ff6a00;
+  --color-brand-600: #e85500;
+  --color-brand-700: #c04302;
+  --color-brand-800: #98370b;
+  --color-ink: #0b0b0c;
+  --color-muted: #5b5f66;
+  --color-line: #ece9e4;
+  --color-surface: #fbfaf8;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-outfit), var(--font-inter), ui-sans-serif, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  background: #fff;
+  color: var(--color-ink);
+}
+
+/* Subtle line texture used behind hero sections. */
+.texture-lines {
+  background-image:
+    repeating-linear-gradient(90deg, rgb(11 11 12 / 0.035) 0 1px, transparent 1px 48px),
+    repeating-linear-gradient(0deg, rgb(11 11 12 / 0.035) 0 1px, transparent 1px 48px);
+  mask-image: radial-gradient(ellipse at 50% 0%, #000 30%, transparent 75%);
+}
+
+.brand-gradient {
+  background-image: linear-gradient(45deg, #ff5a00, #ffa41f);
+}
+
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition
+    focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500
+    disabled:cursor-not-allowed disabled:opacity-50;
+}
+@utility btn-primary {
+  @apply btn bg-brand-500 text-white shadow-sm hover:bg-brand-600;
+}
+@utility btn-dark {
+  @apply btn bg-ink text-white hover:bg-black/85;
+}
+@utility btn-ghost {
+  @apply btn border border-line bg-white text-ink hover:border-brand-300 hover:bg-brand-50;
+}
+@utility card {
+  @apply rounded-2xl border border-line bg-white shadow-[0_1px_2px_rgb(11_11_12/0.04)];
+}
+@utility input {
+  @apply w-full rounded-xl border border-line bg-white px-3.5 py-2.5 text-sm text-ink placeholder:text-muted/70
+    focus:border-brand-400 focus:outline-none focus:ring-4 focus:ring-brand-100;
+}
+@utility label {
+  @apply mb-1.5 block text-sm font-medium text-ink;
+}
+@utility eyebrow {
+  @apply text-xs font-semibold uppercase tracking-[0.14em] text-brand-600;
+}
+@utility chip {
+  @apply inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium;
+}

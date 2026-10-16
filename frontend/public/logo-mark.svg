@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="OriginLens">
+  <defs>
+    <linearGradient id="ol-g" gradientUnits="userSpaceOnUse" x1="8" y1="94" x2="94" y2="4">
+      <stop offset="0" stop-color="#FF5A00"/>
+      <stop offset="1" stop-color="#FFA41F"/>
+    </linearGradient>
+  </defs>
+  <g fill="url(#ol-g)">
+    <path d="M43.75 82.45 A36 36 0 1 1 86 47 L86 68" fill="none" stroke="url(#ol-g)" stroke-width="18"/>
+    <circle cx="48" cy="49" r="17"/>
+    <rect x="50" y="49" width="12" height="45" rx="1.5"/>
+    <rect x="50" y="76" width="47" height="18" rx="2.5"/>
+  </g>
+  <path d="M38.2 45.5 A11 11 0 0 1 45.5 38.3" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/>
+</svg>
