@@ -69,9 +69,10 @@ cd frontend && npx tsc --noEmit && npm run lint && npm run build
 1. **Supabase**: create a project. Copy the Postgres connection string into `DATABASE_URL`
    (use `postgresql+psycopg://…`). Copy the project URL into `SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_URL`, and the anon key into `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
    Under Auth → URL configuration, add your Vercel domain.
-2. **API** (`backend/Dockerfile`) on Render / Fly / Railway, with a managed Redis. Set `ENV=production`,
-   `CORS_ORIGINS=["https://your-app.vercel.app"]` and `TRUSTED_PROXY_COUNT=1` if behind one proxy.
-   Add the LLM keys and Redis URL. Migrations run on container start.
+2. **API + Redis** on Render: New → Blueprint → select this repo (`render.yaml`). Paste `DATABASE_URL`
+   (Supabase pooler string, `postgresql+psycopg://…`) and the LLM keys when prompted. Migrations run on
+   container start. Then set `NEXT_PUBLIC_API_URL` on Vercel to the Render URL and redeploy the frontend.
+   Edit `CORS_ORIGINS` in `render.yaml` if your frontend domain differs. Any Docker host works too.
 3. **Frontend** on Vercel: root directory `frontend`; set the three `NEXT_PUBLIC_*` variables.
 
 The API is not on Vercel because it needs ExifTool, persistent Redis connections, and uploads larger than

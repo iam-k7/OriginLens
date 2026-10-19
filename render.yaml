@@ -1,0 +1,40 @@
+# Render Blueprint: FastAPI API + Redis. Database and auth stay on Supabase.
+# Deploy: Render dashboard -> New -> Blueprint -> pick this repo. Fill the prompted secrets (sync: false).
+services:
+  - type: web
+    name: originlens-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /api/health
+    # shortcut: free plan sleeps after ~15 min idle (slow first request); use "starter" for production.
+    plan: free
+    envVars:
+      - key: ENV
+        value: production
+      - key: WEB_CONCURRENCY
+        value: "1"
+      - key: TRUSTED_PROXY_COUNT # Render adds one proxy hop in front of the app
+        value: "1"
+      - key: CORS_ORIGINS
+        value: '["https://originlens-two.vercel.app"]' # add your custom domain here as a second entry
+      - key: SUPABASE_URL
+        value: https://lvymkstqztdgkanqmhoh.supabase.co
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: originlens-redis
+          property: connectionString
+      # Secrets: Render asks for these when you create the Blueprint.
+      - key: DATABASE_URL # Supabase pooler string, format: postgresql+psycopg://...
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+
+  - type: keyvalue
+    name: originlens-redis
+    plan: free
+    maxmemoryPolicy: volatile-lru # all our keys carry a TTL; never evict anything else
+    ipAllowList: [] # private network only: only the API can connect
