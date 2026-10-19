@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert, ErrorAlert, KV, Limitations, Section, Spinner, Tabs } from "@/components/ui";
-import { api, ApiError, base64ToBlob, formatBytes } from "@/lib/api";
+import { api, ApiError, base64ToBlob, formatBytes, uploadFile } from "@/lib/api";
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- API payloads are rendered generically */
 type Analysis = { metadata: any; c2pa: any; privacy_clean_supported: boolean };
 type TabId = "overview" | "metadata" | "provenance" | "ai" | "clean";
+type Job = { name: string; size: number; sent: number; status: "uploading" | "analyzing" | "done" | "failed" };
 
 const ACCEPT = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const MAX_MB = 15;
@@ -18,6 +19,20 @@ const CATEGORIES: { id: string; label: string; hint: string }[] = [
   { id: "c2pa", label: "Content Credentials", hint: "C2PA provenance manifest" },
   { id: "comments", label: "Comments & text", hint: "JPEG comments, PNG text chunks, timestamps" },
 ];
+
+const CLOUD = "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242M12 12v9M16 16l-4-4-4 4";
+const CHECK_CIRCLE = "M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-12.5.5 2.5 2.5 4.5-5";
+const TRASH = "M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6";
+const CLOSE = "M18 6 6 18M6 6l12 12";
+const ICON_BTN = "grid h-8 w-8 shrink-0 place-items-center rounded-md text-muted transition hover:bg-surface hover:text-ink focus-visible:outline-2 focus-visible:outline-brand-500";
+
+function Icon({ d, className = "h-5 w-5" }: { d: string; className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d={d} />
+    </svg>
+  );
+}
 
 export default function AnalyzerPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -32,11 +47,14 @@ export default function AnalyzerPage() {
   const [cats, setCats] = useState<string[]>(["gps"]);
   const [tab, setTab] = useState<TabId>("overview");
   const input = useRef<HTMLInputElement>(null);
+  const abort = useRef<AbortController | null>(null);
+  const [job, setJob] = useState<Job | null>(null);
 
   useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
 
   const reset = useCallback(() => {
-    setFile(null); setPreview(null); setResult(null); setAi(null); setClean(null); setError(null); setTab("overview");
+    abort.current?.abort();
+    setFile(null); setPreview(null); setResult(null); setAi(null); setClean(null); setError(null); setJob(null); setTab("overview");
     if (input.current) input.current.value = "";
   }, []);
 
@@ -47,11 +65,22 @@ export default function AnalyzerPage() {
     }
     if (f.size > MAX_MB * 1024 * 1024) { setError(new ApiError(0, "invalid_file", `Images must be at most ${MAX_MB} MB.`)); return; }
     reset();
-    setFile(f); setPreview(URL.createObjectURL(f)); setBusy("Analyzing image");
+    const ctrl = new AbortController();
+    abort.current = ctrl;
+    setFile(f); setPreview(URL.createObjectURL(f));
+    setJob({ name: f.name, size: f.size, sent: 0, status: "uploading" });
     try {
       const fd = new FormData(); fd.append("file", f);
-      setResult(await api<Analysis>("/images/analyze", { method: "POST", body: fd }));
-    } catch (e) { setError(e); } finally { setBusy(null); }
+      const r = await uploadFile<Analysis>("/images/analyze", fd, (loaded, total) =>
+        setJob((j) => j && { ...j, sent: (loaded / total) * f.size, status: loaded >= total ? "analyzing" : "uploading" }), ctrl.signal);
+      if (ctrl.signal.aborted) return;
+      setResult(r);
+      setJob((j) => j && { ...j, sent: f.size, status: "done" });
+    } catch (e) {
+      if (ctrl.signal.aborted) return;
+      setError(e);
+      setJob((j) => j && { ...j, status: "failed" });
+    }
   }, [reset]);
 
   useEffect(() => {
@@ -77,6 +106,7 @@ export default function AnalyzerPage() {
       setFile(new File([blob], name, { type: r.image.mime_type }));
       setPreview(URL.createObjectURL(blob));
       setResult(r);
+      setJob({ name, size: blob.size, sent: blob.size, status: "done" });
     } catch (err) { setError(err); } finally { setBusy(null); }
   }
 
@@ -107,6 +137,7 @@ export default function AnalyzerPage() {
   }
 
   const m = result?.metadata;
+  const pct = job?.size ? Math.round((job.sent / job.size) * 100) : 0;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
@@ -114,36 +145,82 @@ export default function AnalyzerPage() {
       <h1 className="mt-2 font-display text-3xl font-medium tracking-tight sm:text-4xl">Inspect, verify and clean an image</h1>
       <p className="mt-2 max-w-2xl text-muted">Metadata, Content Credentials and AI signals — read from the file itself. Nothing is stored.</p>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-[380px_minmax(0,1fr)]">
+      <div className="mt-8 grid items-start gap-6 lg:grid-cols-[440px_minmax(0,1fr)]">
         <div className="space-y-4">
           <div
             onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
             onDragLeave={() => setDrag(false)}
             onDrop={(e) => { e.preventDefault(); setDrag(false); const f = e.dataTransfer.files[0]; if (f) analyzeFile(f); }}
-            className={`card relative flex min-h-64 flex-col items-center justify-center overflow-hidden border-2 border-dashed p-6 text-center transition ${
-              drag ? "border-brand-400 bg-brand-50" : "border-line"
-            }`}
+            className="card p-6 sm:p-8"
           >
-            {preview ? (
-              // eslint-disable-next-line @next/next/no-img-element -- local object URL preview
-              <img src={preview} alt="Selected image preview" className="max-h-72 w-auto rounded-lg object-contain" />
-            ) : (
-              <>
-                <svg viewBox="0 0 24 24" className="h-10 w-10 text-brand-500" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
-                  <path d="M12 16V4m0 0l-4 4m4-4l4 4M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
-                </svg>
-                <p className="mt-3 font-medium">Drag and drop an image</p>
-                <p className="mt-1 text-sm text-muted">or paste from clipboard · JPG, PNG, WEBP, GIF · max {MAX_MB} MB</p>
-              </>
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-surface">
+                  <Icon d={CLOUD} className="h-6 w-6 text-ink" />
+                </span>
+                <div>
+                  <h2 className="font-display text-xl font-semibold tracking-tight">Upload files</h2>
+                  <p className="text-sm text-muted">Select and upload the image you want to inspect</p>
+                </div>
+              </div>
+              {job && (
+                <button type="button" onClick={reset} aria-label="Clear" className={ICON_BTN}>
+                  <Icon d={CLOSE} />
+                </button>
+              )}
+            </div>
+
+            <div className={`mt-6 flex flex-col items-center rounded-xl border-2 border-dashed px-6 py-10 text-center transition ${drag ? "border-brand-400 bg-brand-50" : "border-ink/20"}`}>
+              <Icon d={CLOUD} className="h-14 w-14 text-muted" />
+              <p className="mt-4 text-lg font-semibold">Choose a file or drag &amp; drop it here.</p>
+              <p className="mt-1 text-sm text-muted">JPEG, PNG, WEBP and GIF, up to {MAX_MB} MB.</p>
+              <button type="button" onClick={() => input.current?.click()} className="btn-ghost mt-5">Browse File</button>
+              <input ref={input} type="file" accept={ACCEPT.join(",")} className="sr-only" tabIndex={-1} aria-hidden="true"
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) analyzeFile(f); }} />
+            </div>
+
+            {job && (
+              <div className="mt-6 border-t border-line pt-6">
+                <div className="flex items-center gap-4">
+                  <span className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-xl bg-surface">
+                    {preview && (
+                      // eslint-disable-next-line @next/next/no-img-element -- local object URL preview
+                      <img src={preview} alt="" className="h-full w-full object-cover" />
+                    )}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium" title={job.name}>{job.name}</p>
+                    <p className="mt-0.5 text-sm text-muted">
+                      {job.status === "uploading" && `${formatBytes(Math.round(job.sent))} of ${formatBytes(job.size)} · Uploading…`}
+                      {job.status === "analyzing" && `${formatBytes(job.size)} · Analyzing…`}
+                      {job.status === "done" && <>{formatBytes(job.size)} · <span className="font-medium text-emerald-700">Completed</span></>}
+                      {job.status === "failed" && <>{formatBytes(job.size)} · <span className="font-medium text-red-700">Failed</span></>}
+                    </p>
+                  </div>
+                  {job.status === "done" ? (
+                    <>
+                      <Icon d={CHECK_CIRCLE} className="h-6 w-6 shrink-0 text-emerald-600" />
+                      <button type="button" onClick={reset} aria-label="Remove file" className={ICON_BTN}>
+                        <Icon d={TRASH} />
+                      </button>
+                    </>
+                  ) : (
+                    <button type="button" onClick={reset} aria-label={job.status === "failed" ? "Dismiss" : "Cancel upload"} className={ICON_BTN}>
+                      <Icon d={CLOSE} />
+                    </button>
+                  )}
+                </div>
+                {(job.status === "uploading" || job.status === "analyzing") && (
+                  <div role="progressbar" aria-label="Upload progress" aria-valuemin={0} aria-valuemax={100}
+                    aria-valuenow={job.status === "uploading" ? pct : undefined}
+                    className="mt-3 h-1.5 overflow-hidden rounded-full bg-line">
+                    <div className={`h-full rounded-full bg-ink ${job.status === "analyzing" ? "w-full animate-pulse" : ""}`}
+                      style={job.status === "uploading" ? { width: `${pct}%` } : undefined} />
+                  </div>
+                )}
+              </div>
             )}
-            <input ref={input} type="file" accept={ACCEPT.join(",")} className="sr-only" id="file"
-              onChange={(e) => { const f = e.target.files?.[0]; if (f) analyzeFile(f); }} />
           </div>
-          <div className="flex gap-2">
-            <label htmlFor="file" className="btn-primary flex-1 cursor-pointer">Browse files</label>
-            {file && <button onClick={reset} className="btn-ghost">Remove</button>}
-          </div>
-          {file && <p className="truncate text-sm text-muted">{file.name} · {formatBytes(file.size)}</p>}
 
           <form onSubmit={analyzeUrl} className="card space-y-2 p-4">
             <label htmlFor="url" className="label">Or analyze an image URL</label>

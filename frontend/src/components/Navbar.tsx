@@ -32,6 +32,9 @@ export function Navbar() {
       path === href ? "bg-surface text-ink" : "text-muted hover:text-ink"
     }`;
 
+  // The sign-in screens have their own header, like the reference.
+  if (path === "/login" || path === "/signup") return null;
+
   return (
     // Floating chips over the page panel, like the reference; the header itself lets clicks through.
     <header className="pointer-events-none fixed inset-x-4 top-4 z-40 sm:inset-x-6 sm:top-5">

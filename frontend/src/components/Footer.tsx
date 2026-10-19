@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Logo } from "./Logo";
 
 const COLS = [
@@ -8,6 +11,9 @@ const COLS = [
 ];
 
 export function Footer() {
+  const path = usePathname();
+  if (path === "/login" || path === "/signup") return null;
+
   return (
     <footer className="text-milk">
       <div className="mx-auto grid max-w-6xl gap-10 border-t border-milk/10 px-4 pb-10 pt-14 sm:px-6 md:grid-cols-[1.6fr_1fr_1fr_1fr]">
