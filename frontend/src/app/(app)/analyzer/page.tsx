@@ -3,10 +3,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert, ErrorAlert, KV, Limitations, Section, Spinner, Tabs } from "@/components/ui";
 import { api, ApiError, base64ToBlob, formatBytes, uploadFile } from "@/lib/api";
+import { checkAiSignals, type AiSignals } from "@/lib/aiSignals";
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- API payloads are rendered generically */
 type Analysis = { metadata: any; c2pa: any; privacy_clean_supported: boolean };
-type TabId = "overview" | "metadata" | "provenance" | "ai" | "clean";
+type TabId = "overview" | "metadata" | "provenance" | "clean";
 type Job = { name: string; size: number; sent: number; status: "uploading" | "analyzing" | "done" | "failed" };
 
 const ACCEPT = ["image/jpeg", "image/png", "image/webp", "image/gif"];
@@ -42,7 +43,7 @@ export default function AnalyzerPage() {
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<unknown>(null);
   const [result, setResult] = useState<Analysis | null>(null);
-  const [ai, setAi] = useState<any>(null);
+  const [aiCheck, setAiCheck] = useState<{ file: File; result: AiSignals } | null>(null);
   const [clean, setClean] = useState<any>(null);
   const [cats, setCats] = useState<string[]>(["gps"]);
   const [tab, setTab] = useState<TabId>("overview");
@@ -54,7 +55,7 @@ export default function AnalyzerPage() {
 
   const reset = useCallback(() => {
     abort.current?.abort();
-    setFile(null); setPreview(null); setResult(null); setAi(null); setClean(null); setError(null); setJob(null); setTab("overview");
+    setFile(null); setPreview(null); setResult(null); setAiCheck(null); setClean(null); setError(null); setJob(null); setTab("overview");
     if (input.current) input.current.value = "";
   }, []);
 
@@ -69,6 +70,7 @@ export default function AnalyzerPage() {
     abort.current = ctrl;
     setFile(f); setPreview(URL.createObjectURL(f));
     setJob({ name: f.name, size: f.size, sent: 0, status: "uploading" });
+    checkAiSignals(f).then((result) => setAiCheck({ file: f, result })).catch(() => undefined);
     try {
       const fd = new FormData(); fd.append("file", f);
       const r = await uploadFile<Analysis>("/images/analyze", fd, (loaded, total) =>
@@ -78,7 +80,9 @@ export default function AnalyzerPage() {
       setJob((j) => j && { ...j, sent: f.size, status: "done" });
     } catch (e) {
       if (ctrl.signal.aborted) return;
-      setError(e);
+      setError(e instanceof ApiError && e.code === "network_error"
+        ? new ApiError(0, "server_offline", "Metadata details need the OriginLens server, which is not connected yet. The AI check above runs in your browser.")
+        : e);
       setJob((j) => j && { ...j, status: "failed" });
     }
   }, [reset]);
@@ -103,20 +107,13 @@ export default function AnalyzerPage() {
       });
       const blob = base64ToBlob(r.image.base64, r.image.mime_type);
       const name = new URL(url.trim()).pathname.split("/").pop() || "remote-image";
-      setFile(new File([blob], name, { type: r.image.mime_type }));
+      const f = new File([blob], name, { type: r.image.mime_type });
+      setFile(f);
+      checkAiSignals(f).then((result) => setAiCheck({ file: f, result })).catch(() => undefined);
       setPreview(URL.createObjectURL(blob));
       setResult(r);
       setJob({ name, size: blob.size, sent: blob.size, status: "done" });
     } catch (err) { setError(err); } finally { setBusy(null); }
-  }
-
-  async function runAi() {
-    if (!file) return;
-    setBusy("Analyzing AI signals"); setError(null);
-    try {
-      const fd = new FormData(); fd.append("file", file);
-      setAi((await api<any>("/images/ai-signals", { method: "POST", body: fd })).ai_signals);
-    } catch (e) { setError(e); } finally { setBusy(null); }
   }
 
   async function runClean() {
@@ -138,6 +135,7 @@ export default function AnalyzerPage() {
 
   const m = result?.metadata;
   const pct = job?.size ? Math.round((job.sent / job.size) * 100) : 0;
+  const ai = aiCheck && aiCheck.file === file ? aiCheck.result : null;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
@@ -236,7 +234,13 @@ export default function AnalyzerPage() {
         <div className="min-w-0 space-y-4" aria-live="polite">
           {busy && <div className="card p-5"><Spinner label={busy} /></div>}
           <ErrorAlert error={error} />
-          {!result && !busy && !error && (
+          {ai && (
+            <div className="space-y-4">
+              <p className="eyebrow">AI check · runs in your browser</p>
+              <AiResult ai={ai} />
+            </div>
+          )}
+          {!result && !busy && !error && !ai && (
             <div className="card flex min-h-64 items-center justify-center p-8 text-center text-muted">
               Results appear here after you add an image.
             </div>
@@ -251,7 +255,6 @@ export default function AnalyzerPage() {
                   { id: "overview", label: "Overview" },
                   { id: "metadata", label: "Metadata" },
                   { id: "provenance", label: "Provenance" },
-                  { id: "ai", label: "AI Signals" },
                   { id: "clean", label: "Privacy Clean" },
                 ]}
               />
@@ -326,16 +329,6 @@ export default function AnalyzerPage() {
 
               {tab === "provenance" && <Provenance c2pa={result!.c2pa} />}
 
-              {tab === "ai" && (
-                <div className="space-y-4">
-                  {!ai ? (
-                    <Section title="AI signals">
-                      <p className="text-sm text-muted">Checks Content Credentials, IPTC/XMP declarations, generator fingerprints and technical hints.</p>
-                      <button onClick={runAi} disabled={!!busy} className="btn-primary mt-4">Analyze AI Signals</button>
-                    </Section>
-                  ) : <AiResult ai={ai} />}
-                </div>
-              )}
 
               {tab === "clean" && (
                 <div className="space-y-4">
@@ -408,7 +401,7 @@ const VERDICT: Record<string, string> = {
   declared_ai: "The file declares AI generation",
   ai_indicators: "The file contains AI-related indicators",
   camera_indicators: "The file contains camera capture data",
-  inconclusive: "No conclusive evidence in the file",
+  inconclusive: "No AI markers found in the file",
 };
 
 function AiResult({ ai }: { ai: any }) {

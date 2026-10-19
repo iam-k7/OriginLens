@@ -8,61 +8,6 @@ function SampleTag() {
   return <span className="rounded-[3px] bg-milk/10 px-1.5 py-0.5 text-[10px] text-dim">Sample</span>;
 }
 
-function MetadataCard() {
-  const C = 2 * Math.PI * 22;
-  const parts: [string, number, string][] = [["EXIF", 14, "#ff6a00"], ["GPS", 4, "#ffb170"], ["XMP", 5, "#cfc8bf"], ["C2PA", 1, "#6b635c"]];
-  let offset = 0;
-  return (
-    <div className="w-[264px] rounded-lg bg-ink-2 p-4 text-left text-milk shadow-2xl ring-1 ring-white/5">
-      <div className="flex items-center justify-between">
-        <p className="text-[13px] font-medium">Metadata found</p>
-        <SampleTag />
-      </div>
-      <p className="mt-0.5 text-[11px] text-dim">photo_0412.jpg · 2.4 MB</p>
-      <p className="mt-3 text-2xl font-medium tracking-tight">24 fields</p>
-      <span className="mt-1 inline-block rounded-[3px] bg-brand-500/15 px-1.5 py-0.5 text-[11px] text-brand-300">GPS location present</span>
-      <div className="mt-3 flex items-center gap-4 border-t border-milk/10 pt-3">
-        <svg viewBox="0 0 60 60" className="h-16 w-16 -rotate-90" aria-hidden="true">
-          {parts.map(([k, v, c]) => {
-            const len = (v / 24) * C;
-            const el = <circle key={k} cx="30" cy="30" r="22" fill="none" stroke={c} strokeWidth="9" strokeDasharray={`${len} ${C - len}`} strokeDashoffset={-offset} />;
-            offset += len;
-            return el;
-          })}
-        </svg>
-        <ul className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">
-          {parts.map(([k, v, c]) => (
-            <li key={k} className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full" style={{ background: c }} />{k} <span className="text-dim">{v}</span></li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  );
-}
-
-function CleanCard() {
-  return (
-    <div className="w-[264px] rounded-lg bg-ink-2 p-4 text-left text-milk shadow-2xl ring-1 ring-white/5">
-      <div className="flex items-center justify-between">
-        <p className="text-[13px] font-medium">Privacy Clean</p>
-        <SampleTag />
-      </div>
-      <p className="mt-0.5 text-[11px] text-dim">photo_0412-clean.jpg</p>
-      <p className="mt-3 text-2xl font-medium tracking-tight">−6.1 KB</p>
-      <span className="mt-1 inline-block rounded-[3px] bg-emerald-400/15 px-1.5 py-0.5 text-[11px] text-emerald-300">Pixels identical</span>
-      <div className="mt-3 space-y-2 border-t border-milk/10 pt-3 text-[11px]">
-        {[["Before", "w-full", "bg-milk/40"], ["After", "w-[97%]", "bg-brand-500"]].map(([l, w, c]) => (
-          <div key={l}>
-            <div className="flex justify-between text-dim"><span>{l}</span><span>{l === "Before" ? "2.41 MB" : "2.40 MB"}</span></div>
-            <div className="mt-1 h-1.5 rounded-full bg-milk/10"><div className={`h-full rounded-full ${w} ${c}`} /></div>
-          </div>
-        ))}
-        <p className="pt-1 text-dim">Removed: GPS · EXIF · XMP</p>
-      </div>
-    </div>
-  );
-}
-
 const STATS = [
   ["0", "bytes of your images stored"],
   ["6", "metadata categories you can remove"],
@@ -122,10 +67,6 @@ export default function Home() {
               OriginLens reads every metadata block, <span className={SOFT}>verifies Content Credentials</span> and strips what you
               don&apos;t want to share — <span className={SOFT}>without touching a pixel.</span>
             </p>
-          </div>
-          <div className="absolute bottom-6 right-6 hidden gap-3 xl:flex" aria-label="Sample report preview">
-            <MetadataCard />
-            <CleanCard />
           </div>
         </div>
       </section>
