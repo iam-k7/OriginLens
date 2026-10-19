@@ -25,6 +25,7 @@ export function Footer() {
             <li>No uploads stored</li>
             <li>No fabricated scores</li>
             <li>C2PA-aware provenance</li>
+            <li><Link className="hover:text-ink" href="/privacy">Privacy Policy</Link></li>
           </ul>
         </div>
       </div>
