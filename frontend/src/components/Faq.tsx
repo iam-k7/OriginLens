@@ -39,7 +39,6 @@ export function Faq() {
     <section className="panel px-4 py-16 sm:px-10 sm:py-20" aria-labelledby={`${base}-title`}>
       <div className="mx-auto grid max-w-6xl items-start gap-10 lg:grid-cols-[minmax(0,360px)_1fr] lg:gap-16">
       <aside className="relative order-last overflow-hidden rounded-lg bg-ink p-8 text-milk lg:order-none">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_60%_at_100%_0%,rgb(255_106_0/0.35),transparent_70%)]" aria-hidden="true" />
         <div className="relative">
           <div className="grid h-14 w-14 place-items-center rounded-xl bg-milk shadow-[inset_0_-4px_8px_rgb(120_90_60/0.2)]">
             <LogoMark className="h-8 w-8" />

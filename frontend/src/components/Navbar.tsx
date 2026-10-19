@@ -14,7 +14,7 @@ const LINKS = [
   { href: "/pricing", label: "Pricing" },
 ];
 
-const chip = "pointer-events-auto rounded-md bg-white/90 shadow-[0_1px_2px_rgb(0_0_0/0.08)] ring-1 ring-line backdrop-blur";
+const chip = "pointer-events-auto rounded-md bg-white/90 shadow-[0_1px_2px_rgb(0_0_0/0.08)] ring-1 ring-line";
 
 export function Navbar() {
   const path = usePathname();

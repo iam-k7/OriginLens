@@ -26,13 +26,12 @@ const noCountries: string[] = [];
 const subscribeNone = () => () => {};
 const countriesSnapshot = () => COUNTRIES;
 
-const FIELD = "h-14 w-full rounded-full border border-white/15 bg-white/[0.07] px-6 text-[15px] text-milk shadow-[inset_0_1px_0_rgb(255_255_255/0.08),inset_0_-10px_18px_-12px_rgb(0_0_0/0.6)] backdrop-blur-xl outline-none transition placeholder:text-milk/45 focus:border-brand-400 focus:ring-4 focus:ring-brand-500/25 disabled:cursor-not-allowed disabled:opacity-45";
-const SOCIAL = "flex h-12 flex-1 items-center justify-center gap-2.5 rounded-full border border-white/15 bg-white/[0.08] px-5 text-[15px] font-medium text-milk shadow-[inset_0_1px_0_rgb(255_255_255/0.12),0_12px_30px_-14px_rgb(0_0_0/0.7)] backdrop-blur-xl transition hover:bg-white/[0.15] focus-visible:outline-2 focus-visible:outline-brand-400 disabled:cursor-not-allowed disabled:opacity-50";
-const PRIMARY = "h-12 w-full rounded-full bg-brand-500 px-6 text-[15px] font-semibold text-ink shadow-[inset_0_1px_0_rgb(255_255_255/0.35),0_12px_28px_-12px_rgb(255_106_0/0.8)] transition hover:bg-brand-400 focus-visible:outline-2 focus-visible:outline-milk disabled:cursor-not-allowed disabled:opacity-45";
-const GLASS_BTN = "rounded-full bg-white/15 px-5 text-sm font-medium text-milk transition hover:bg-white/25 disabled:cursor-not-allowed disabled:opacity-40";
+const FIELD = "h-14 w-full rounded-full border border-milk/15 bg-ink-2 px-6 text-[15px] text-milk outline-none transition placeholder:text-milk/40 focus:border-brand-400 focus:ring-4 focus:ring-brand-500/20 disabled:cursor-not-allowed disabled:opacity-45";
+const SOCIAL = "flex h-12 flex-1 items-center justify-center gap-2.5 rounded-full border border-milk/15 bg-ink-2 px-5 text-[15px] font-medium text-milk transition hover:border-milk/35 focus-visible:outline-2 focus-visible:outline-brand-400 disabled:cursor-not-allowed disabled:opacity-50";
+const PRIMARY = "h-12 w-full rounded-full bg-brand-500 px-6 text-[15px] font-semibold text-ink transition hover:bg-brand-400 focus-visible:outline-2 focus-visible:outline-milk disabled:cursor-not-allowed disabled:opacity-45";
+const SUB_BTN = "rounded-full border border-milk/15 bg-ink-2 px-5 text-sm font-medium text-milk transition hover:border-milk/35 disabled:cursor-not-allowed disabled:opacity-40";
 const LINK = "font-medium text-brand-300 underline-offset-4 hover:underline";
-// z-10: the blurred input paints over an earlier sibling otherwise.
-const MAIL_ICON = "pointer-events-none absolute left-5 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-milk/70";
+const MAIL_ICON = "pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-milk/60";
 
 export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const router = useRouter();
@@ -175,7 +174,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
                 <CheckIcon /> Verified
               </span>
             ) : (
-              <button type="button" onClick={sendCode} disabled={busy || !canSend} className={`${GLASS_BTN} absolute right-1.5 top-1.5 h-11`}>
+              <button type="button" onClick={sendCode} disabled={busy || !canSend} className={`${SUB_BTN} absolute right-1.5 top-1.5 h-11`}>
                 {codeSent ? "Resend code" : "Send code"}
               </button>
             )}
@@ -185,7 +184,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
             <div className="flex gap-2">
               <input aria-label="6-digit code" inputMode="numeric" autoComplete="one-time-code" maxLength={6} placeholder="6-digit code"
                 value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))} className={FIELD} />
-              <button type="button" onClick={verifyCode} disabled={busy || code.length !== 6} className={`${GLASS_BTN} h-14 shrink-0`}>
+              <button type="button" onClick={verifyCode} disabled={busy || code.length !== 6} className={`${SUB_BTN} h-14 shrink-0`}>
                 Verify
               </button>
             </div>

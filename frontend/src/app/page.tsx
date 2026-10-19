@@ -1,62 +1,8 @@
 import Link from "next/link";
-import type { CSSProperties } from "react";
 import { Faq } from "@/components/Faq";
 import { LogoMark } from "@/components/Logo";
 
 const SOFT = "text-[#857e77]"; // second headline tone; 3.3:1 on stone, used only at large sizes
-
-/* Hero circuit: hairline traces around the headline, with metadata nodes and a few lit segments. */
-const TRACES = [
-  "M60 -10V70Q60 90 80 90H230Q250 90 250 110V240Q250 260 230 260H40Q20 260 20 280V430",
-  "M-10 380H150Q170 380 170 400V560Q170 580 190 580H520Q540 580 540 600V720",
-  "M100 470V640Q100 660 80 660H-10",
-  "M420 -10V40Q420 60 440 60H1000Q1020 60 1020 40V-10",
-  "M1450 140H1300Q1280 140 1280 160V300Q1280 320 1300 320H1450",
-  "M1250 -10V60Q1250 80 1230 80H1200Q1180 80 1180 100V460Q1180 480 1160 480H1000Q980 480 980 500V600Q980 620 960 620H900",
-  "M1450 560H1360Q1340 560 1340 580V700",
-];
-const LIT = ["M250 120V200", "M170 520V560Q170 580 190 580H300", "M1180 320V430", "M720 60H900"];
-const NODES: [number, number, string][] = [
-  [250, 175, "EXIF"], [20, 340, "GPS"], [170, 470, "XMP"], [380, 580, "ICC"], [640, 60, "C2PA"],
-  [1280, 230, "IPTC"], [1180, 220, "SHA"], [980, 550, "PNG"], [100, 590, "WEBP"], [1340, 640, "JPEG"],
-];
-
-function Circuit() {
-  return (
-    <svg className="pointer-events-none absolute inset-0 h-full w-full opacity-60 lg:opacity-100" viewBox="0 0 1440 900"
-      preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-      <g fill="none" stroke="rgb(22 18 15 / 0.14)" strokeWidth="1.2">
-        {TRACES.map((d) => <path key={d} d={d} />)}
-      </g>
-      <g fill="none" stroke="#ff6a00" strokeWidth="1.6" strokeLinecap="round">
-        {LIT.map((d) => <path key={d} d={d} className="circuit-flow" />)}
-      </g>
-      {NODES.map(([x, y, t]) => (
-        <g key={t} transform={`translate(${x - 24} ${y - 13})`}>
-          <rect width="48" height="26" rx="6" fill="#eceae3" stroke="rgb(22 18 15 / 0.16)" />
-          <text x="24" y="17" textAnchor="middle" fontSize="9.5" fontFamily="ui-monospace, monospace" fill="#6b635c">{t}</text>
-        </g>
-      ))}
-    </svg>
-  );
-}
-
-/* Tactile 3D tile carrying the logo mark, the hero's centerpiece. */
-function Tile() {
-  const face: CSSProperties = {
-    background: "linear-gradient(150deg, #fdfaf4 0%, #eee6da 50%, #d9cdbd 100%)",
-    boxShadow:
-      "inset 0 2px 1px rgb(255 255 255 / 0.95), inset 0 -16px 28px rgb(120 90 60 / 0.22), 0 40px 60px -28px rgb(40 25 10 / 0.55)",
-  };
-  return (
-    <div className="relative h-48 w-48 sm:h-60 sm:w-60" style={{ transform: "perspective(900px) rotateX(32deg) rotateZ(-12deg)" }}>
-      <div className="absolute inset-0 translate-y-4 rounded-[26%] bg-[#bfb09d]" aria-hidden="true" />
-      <div className="absolute inset-0 grid place-items-center rounded-[26%]" style={face}>
-        <LogoMark className="h-20 w-20 drop-shadow-[0_1px_0_rgb(255_255_255/0.9)] sm:h-24 sm:w-24" />
-      </div>
-    </div>
-  );
-}
 
 function SampleTag() {
   return <span className="rounded-[3px] bg-milk/10 px-1.5 py-0.5 text-[10px] text-dim">Sample</span>;
@@ -143,7 +89,6 @@ export default function Home() {
     <>
       {/* Hero panel */}
       <section className="panel relative flex flex-col overflow-hidden lg:min-h-[calc(100svh-1.5rem)]">
-        <Circuit />
         <div className="relative mx-auto max-w-5xl px-4 pt-28 text-center sm:pt-32 lg:pt-36">
           <p className="inline-flex items-center gap-2 text-[13px] text-muted">
             Built for
@@ -167,10 +112,6 @@ export default function Home() {
         </div>
 
         <div className="relative mx-auto mt-14 h-[230px] w-full max-w-[1400px] shrink-0 sm:h-[300px] lg:flex-1 lg:mt-6 lg:min-h-[330px]">
-          <div className="absolute bottom-[-56px] left-1/2 -translate-x-1/2">
-            <div className="absolute -bottom-6 left-1/2 h-10 w-56 -translate-x-1/2 rounded-[50%] bg-ink/25 blur-2xl" aria-hidden="true" />
-            <Tile />
-          </div>
           <span className="absolute left-[calc(50%-190px)] top-4 hidden items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs text-ink shadow-[0_2px_8px_rgb(22_18_15/0.1)] ring-1 ring-line sm:inline-flex lg:left-[calc(50%-260px)] lg:top-10">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
             Processed in memory
@@ -216,22 +157,14 @@ export default function Home() {
       </section>
 
       {/* Inside the app */}
-      <section className="relative overflow-hidden rounded-xl bg-[#0f0c0a] px-4 py-20 text-milk sm:px-10 sm:py-28">
-        <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-          <div className="absolute inset-0 bg-[radial-gradient(60%_50%_at_78%_12%,rgb(255_138_46/0.35),transparent_60%)]" />
-          <div className="absolute -inset-x-1/4 top-[38%] h-40 -rotate-[14deg] bg-gradient-to-r from-transparent via-brand-500/35 to-transparent blur-3xl" />
-          <svg className="absolute inset-0 h-full w-full" viewBox="0 0 1200 800" preserveAspectRatio="none">
-            <path d="M-50 640C250 520 520 470 760 330S1120 120 1260 60" fill="none" stroke="rgb(255 190 140 / 0.35)" strokeWidth="2" />
-            <path d="M-50 700C300 600 560 540 800 410S1150 210 1260 150" fill="none" stroke="rgb(255 190 140 / 0.18)" strokeWidth="1.5" />
-          </svg>
-        </div>
+      <section className="texture-grid-dark relative overflow-hidden rounded-xl bg-ink-2 px-4 py-20 text-milk sm:px-10 sm:py-28">
         <div className="relative mx-auto max-w-5xl">
           <div className="text-center">
             <span className="pill-label">Inside the app</span>
             <h2 className="mt-6 font-display text-4xl font-normal tracking-[-0.045em] sm:text-5xl">Every metadata block, one clear view</h2>
             <p className="mx-auto mt-4 max-w-lg text-dim">Grouped by source, sensitive fields flagged, and one click to remove them.</p>
           </div>
-          <div className="mt-14 overflow-hidden rounded-lg bg-ink/80 text-left shadow-2xl ring-1 ring-milk/10 backdrop-blur">
+          <div className="mt-14 overflow-hidden rounded-lg bg-ink/80 text-left shadow-2xl ring-1 ring-milk/10">
             <div className="flex items-center gap-2 border-b border-milk/10 px-4 py-3">
               <span className="flex gap-1.5" aria-hidden="true">{[1, 2, 3].map((i) => <span key={i} className="h-2.5 w-2.5 rounded-full bg-milk/15" />)}</span>
               <span className="ml-2 text-xs text-dim">Image Analyzer · photo_0412.jpg</span>
@@ -292,7 +225,6 @@ export default function Home() {
       {/* CTA */}
       <section className="mx-auto max-w-6xl px-4 py-24 text-center text-milk sm:px-6">
         <div className="relative overflow-hidden rounded-xl bg-ink-2 px-6 py-20 ring-1 ring-milk/10 sm:py-24">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_60%_at_50%_120%,rgb(255_106_0/0.35),transparent_70%)]" aria-hidden="true" />
           <h2 className="relative mx-auto max-w-3xl font-display text-4xl font-normal leading-[1.02] tracking-[-0.05em] sm:text-6xl">
             Know what your files say <span className="text-dim">before you share them.</span>
           </h2>

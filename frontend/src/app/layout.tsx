@@ -19,7 +19,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${interTight.variable} ${outfit.variable} ${instrumentSerif.variable} h-full antialiased`}>
       {/* Dark frame around every page; pages render light panels inside it. */}
-      <body className="flex min-h-full flex-col bg-ink p-2 font-sans sm:p-3">
+      <body className="flex min-h-full flex-col bg-ink texture-grid-dark p-2 font-sans sm:p-3">
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-milk focus:px-3 focus:py-2 focus:text-ink">
           Skip to content
         </a>
