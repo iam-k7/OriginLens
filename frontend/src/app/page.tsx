@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
+import { Faq } from "@/components/Faq";
 import { LogoMark } from "@/components/Logo";
 
 const SOFT = "text-[#857e77]"; // second headline tone; 3.3:1 on stone, used only at large sizes
@@ -286,8 +287,10 @@ export default function Home() {
         </div>
       </section>
 
+      <Faq />
+
       {/* CTA */}
-      <section className="mx-auto max-w-6xl px-4 pb-24 text-center text-milk sm:px-6">
+      <section className="mx-auto max-w-6xl px-4 py-24 text-center text-milk sm:px-6">
         <div className="relative overflow-hidden rounded-xl bg-ink-2 px-6 py-20 ring-1 ring-milk/10 sm:py-24">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_60%_at_50%_120%,rgb(255_106_0/0.35),transparent_70%)]" aria-hidden="true" />
           <h2 className="relative mx-auto max-w-3xl font-display text-4xl font-normal leading-[1.02] tracking-[-0.05em] sm:text-6xl">
