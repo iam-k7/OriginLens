@@ -26,7 +26,7 @@ export function Logo({ size = "md" }: { size?: "md" | "lg" }) {
   return (
     <Link href="/" className="inline-flex items-center gap-2.5 rounded-lg focus-visible:outline-2 focus-visible:outline-brand-500" aria-label="OriginLens home">
       <LogoMark className={lg ? "h-11 w-11" : "h-8 w-8"} />
-      <span className={`font-display font-semibold tracking-tight text-ink ${lg ? "text-3xl" : "text-[1.35rem]"}`}>
+      <span className={`font-logo font-semibold tracking-tight text-ink ${lg ? "text-3xl" : "text-[1.35rem]"}`}>
         OriginLens
       </span>
     </Link>

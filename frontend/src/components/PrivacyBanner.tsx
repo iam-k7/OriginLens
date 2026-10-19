@@ -40,7 +40,7 @@ export function PrivacyBanner() {
     <div
       role="region"
       aria-label="Privacy notice"
-      className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-md rounded-2xl border border-line bg-white p-4 shadow-md sm:inset-x-auto sm:bottom-4 sm:right-4 sm:mx-0"
+      className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-md rounded-2xl border border-white/80 bg-milk/95 p-4 shadow-md backdrop-blur-xl sm:inset-x-auto sm:bottom-4 sm:right-4 sm:mx-0"
     >
       <p className="text-sm text-muted">
         We use only essential browser storage to keep you signed in. No ads, no tracking. See our{" "}

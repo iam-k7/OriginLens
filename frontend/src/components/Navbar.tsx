@@ -31,7 +31,7 @@ export function Navbar() {
     }`;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line/80 bg-white/85 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-white/70 bg-milk/70 shadow-[0_1px_0_rgb(26_20_17/0.04)] backdrop-blur-xl">
       <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6" aria-label="Main">
         <Logo />
         <div className="hidden items-center gap-1 lg:flex">

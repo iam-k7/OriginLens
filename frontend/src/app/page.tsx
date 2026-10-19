@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { LogoMark } from "@/components/Logo";
 
 const FEATURES = [
   { title: "Metadata inspection", body: "EXIF, GPS, camera, software, XMP, IPTC and color profiles — read straight from the file, never guessed." },
@@ -19,58 +18,57 @@ const STEPS = [
 export default function Home() {
   return (
     <>
-      <section className="relative overflow-hidden">
-        <div className="texture-lines pointer-events-none absolute inset-0" aria-hidden="true" />
-        <div className="relative mx-auto max-w-6xl px-4 pb-20 pt-16 sm:px-6 sm:pt-24">
-          <div className="mx-auto max-w-3xl text-center">
-            <LogoMark className="mx-auto h-14 w-14" />
-            <p className="eyebrow mt-6">Privacy-first content provenance</p>
-            <h1 className="mt-4 font-display text-4xl font-semibold tracking-tight text-ink sm:text-6xl">
-              Understand where your content <span className="text-brand-500">comes from</span>.
-            </h1>
-            <p className="mx-auto mt-5 max-w-2xl text-lg text-muted">
-              Inspect image metadata and Content Credentials, remove what you don&apos;t want to share,
-              and read your writing with clear, explainable signals.
-            </p>
-            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-              <Link href="/analyzer" className="btn-primary px-6 py-3 text-base">Analyze an image</Link>
-              <Link href="/text" className="btn-ghost px-6 py-3 text-base">Analyze text</Link>
-            </div>
-            <p className="mt-4 text-xs text-muted">No account needed to try. Uploads are processed in memory and discarded.</p>
+      <section className="relative overflow-hidden rounded-b-[2.5rem] bg-brand-500 sm:rounded-b-[4rem]">
+        <div className="texture-lines-light pointer-events-none absolute inset-0" aria-hidden="true" />
+        <div className="relative mx-auto max-w-6xl px-4 pb-24 pt-16 text-center sm:px-6 sm:pb-32 sm:pt-24">
+          <p className="glass-on-orange mx-auto inline-flex rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-ink">
+            Privacy-first content provenance
+          </p>
+          <h1 className="mx-auto mt-7 max-w-4xl font-display text-[2.4rem] font-extrabold uppercase leading-[0.98] text-balance text-milk [overflow-wrap:anywhere] sm:text-6xl lg:text-7xl">
+            Understand where your content comes from
+          </h1>
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-ink">
+            Inspect image metadata and Content Credentials, remove what you don&apos;t want to share,
+            and read your writing with clear, explainable signals.
+          </p>
+          <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
+            <Link href="/analyzer" className="btn-dark px-7 py-3 text-base">Analyze an image</Link>
+            <Link href="/text" className="btn glass-on-orange px-7 py-3 text-base text-ink hover:bg-milk/35">Analyze text</Link>
           </div>
+          <p className="mt-5 text-sm text-ink">No account needed. Uploads are processed in memory and discarded.</p>
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6" aria-labelledby="features">
+      <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6" aria-labelledby="features">
         <p className="eyebrow">What you get</p>
-        <h2 id="features" className="mt-2 font-display text-3xl font-semibold tracking-tight">Evidence, not guesses</h2>
+        <h2 id="features" className="mt-2 font-display text-3xl font-extrabold uppercase tracking-tight sm:text-4xl">Evidence, not guesses</h2>
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {FEATURES.map((f) => (
             <div key={f.title} className="card p-6">
               <div className="h-1.5 w-10 rounded-full brand-gradient" aria-hidden="true" />
-              <h3 className="mt-4 font-display text-lg font-semibold">{f.title}</h3>
+              <h3 className="mt-4 font-display text-lg font-bold">{f.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted">{f.body}</p>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="border-y border-line bg-surface">
-        <div className="mx-auto grid max-w-6xl gap-8 px-4 py-16 sm:px-6 md:grid-cols-3">
+      <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
+        <div className="card grid gap-8 p-8 md:grid-cols-3 md:p-10">
           {STEPS.map(([t, b], i) => (
             <div key={t}>
-              <span className="font-display text-sm font-semibold text-brand-600">0{i + 1}</span>
-              <h3 className="mt-1 font-display text-xl font-semibold">{t}</h3>
+              <span className="font-display text-sm font-extrabold text-brand-600">0{i + 1}</span>
+              <h3 className="mt-1 font-display text-xl font-bold">{t}</h3>
               <p className="mt-2 text-sm text-muted">{b}</p>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+      <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
         <div className="card flex flex-col items-start justify-between gap-6 p-8 sm:flex-row sm:items-center">
           <div>
-            <h2 className="font-display text-2xl font-semibold">Honest by design</h2>
+            <h2 className="font-display text-2xl font-extrabold uppercase tracking-tight">Honest by design</h2>
             <p className="mt-2 max-w-2xl text-sm text-muted">
               Removing metadata never changes where an image came from, and no tool can prove authorship with
               certainty. OriginLens shows what a file declares and explains the limits.
