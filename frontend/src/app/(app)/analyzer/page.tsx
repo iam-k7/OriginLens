@@ -111,7 +111,7 @@ export default function AnalyzerPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
       <p className="eyebrow">Image Analyzer</p>
-      <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">Inspect, verify and clean an image</h1>
+      <h1 className="mt-2 font-display text-3xl font-medium tracking-tight sm:text-4xl">Inspect, verify and clean an image</h1>
       <p className="mt-2 max-w-2xl text-muted">Metadata, Content Credentials and AI signals — read from the file itself. Nothing is stored.</p>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[380px_minmax(0,1fr)]">

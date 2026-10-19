@@ -45,7 +45,7 @@ export default function TextPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
       <p className="eyebrow">Text and Blog Intelligence</p>
-      <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">Read your writing clearly</h1>
+      <h1 className="mt-2 font-display text-3xl font-medium tracking-tight sm:text-4xl">Read your writing clearly</h1>
       <p className="mt-2 max-w-2xl text-muted">Explainable style signals, sentence by sentence — and a rewrite that keeps your meaning. Your text is not stored.</p>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">

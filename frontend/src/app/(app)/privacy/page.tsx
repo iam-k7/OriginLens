@@ -24,7 +24,7 @@ export default function PrivacyPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
       <p className="eyebrow">Legal</p>
-      <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight">Privacy Policy</h1>
+      <h1 className="mt-2 font-display text-4xl font-medium tracking-tight">Privacy Policy</h1>
       <p className="mt-3 text-muted">
         This policy explains how OriginLens (&quot;we&quot;, &quot;us&quot;) handles data on https://originlens.bond.
         The short version: your images and text are processed to give you a result and are not stored by us.

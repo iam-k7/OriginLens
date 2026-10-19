@@ -1,37 +1,32 @@
 import Link from "next/link";
 import { Logo } from "./Logo";
 
+const COLS = [
+  { title: "Product", links: [["/analyzer", "Image Analyzer"], ["/text", "Text and Blog Intelligence"], ["/pricing", "Pricing"]] },
+  { title: "Account", links: [["/login", "Log in"], ["/signup", "Sign up"]] },
+  { title: "Legal", links: [["/privacy", "Privacy Policy"]] },
+];
+
 export function Footer() {
   return (
-    <footer className="border-t border-line bg-surface">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr]">
+    <footer className="text-milk">
+      <div className="mx-auto grid max-w-6xl gap-10 border-t border-milk/10 px-4 pb-10 pt-14 sm:px-6 md:grid-cols-[1.6fr_1fr_1fr_1fr]">
         <div>
-          <Logo />
-          <p className="mt-3 max-w-sm text-sm text-muted">
-            Understand where your content comes from. Images are processed in memory and never stored.
-          </p>
+          <Logo tone="light" size="sm" />
+          <p className="mt-3 max-w-xs text-sm text-dim">Images are processed in memory and never stored. Signals are evidence, not verdicts.</p>
         </div>
-        <div>
-          <h2 className="text-sm font-semibold">Product</h2>
-          <ul className="mt-3 space-y-2 text-sm text-muted">
-            <li><Link className="hover:text-ink" href="/analyzer">Image Analyzer</Link></li>
-            <li><Link className="hover:text-ink" href="/text">Text and Blog Intelligence</Link></li>
-            <li><Link className="hover:text-ink" href="/pricing">Pricing</Link></li>
-          </ul>
-        </div>
-        <div>
-          <h2 className="text-sm font-semibold">Trust</h2>
-          <ul className="mt-3 space-y-2 text-sm text-muted">
-            <li>No uploads stored</li>
-            <li>No fabricated scores</li>
-            <li>C2PA-aware provenance</li>
-            <li><Link className="hover:text-ink" href="/privacy">Privacy Policy</Link></li>
-          </ul>
-        </div>
+        {COLS.map((c) => (
+          <div key={c.title}>
+            <h2 className="text-xs text-dim">{c.title}</h2>
+            <ul className="mt-3 space-y-2 text-sm">
+              {c.links.map(([href, label]) => (
+                <li key={href}><Link className="text-milk/90 hover:text-milk" href={href}>{label}</Link></li>
+              ))}
+            </ul>
+          </div>
+        ))}
       </div>
-      <div className="border-t border-line py-5 text-center text-xs text-muted">
-        © OriginLens. Signals are evidence, not verdicts.
-      </div>
+      <p className="mx-auto max-w-6xl px-4 pb-6 text-xs text-dim sm:px-6">© OriginLens</p>
     </footer>
   );
 }

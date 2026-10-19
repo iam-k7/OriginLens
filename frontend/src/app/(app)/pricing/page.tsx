@@ -21,7 +21,7 @@ export default function PricingPage() {
     <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6">
       <div className="text-center">
         <p className="eyebrow">Pricing</p>
-        <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight">Simple, fair plans</h1>
+        <h1 className="mt-2 font-display text-4xl font-medium tracking-tight">Simple, fair plans</h1>
         <p className="mt-3 text-muted">Clear daily limits keep the service fast and affordable for everyone.</p>
         <div role="radiogroup" aria-label="Currency" className="mt-6 inline-flex rounded-xl border border-line bg-surface p-1">
           {(["USD", "INR"] as const).map((c) => (

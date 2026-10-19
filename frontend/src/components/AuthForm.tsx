@@ -53,7 +53,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
       <div className="texture-lines pointer-events-none absolute inset-0" aria-hidden="true" />
       <div className="relative mx-auto flex max-w-md flex-col px-4 py-16">
         <LogoMark className="mx-auto h-12 w-12" />
-        <h1 className="mt-5 text-center font-display text-3xl font-semibold tracking-tight">
+        <h1 className="mt-5 text-center font-display text-3xl font-medium tracking-tight">
           {signup ? "Create your account" : "Welcome back"}
         </h1>
         <p className="mt-2 text-center text-sm text-muted">

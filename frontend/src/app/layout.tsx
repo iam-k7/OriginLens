@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
-import { Archivo, Inter, Outfit } from "next/font/google";
+import { Inter_Tight, Outfit } from "next/font/google";
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
 import { PrivacyBanner } from "@/components/PrivacyBanner";
 import "./globals.css";
 
-const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
-const archivo = Archivo({ variable: "--font-archivo", subsets: ["latin"], axes: ["wdth"] });
+const interTight = Inter_Tight({ variable: "--font-inter-tight", subsets: ["latin"] });
 const outfit = Outfit({ variable: "--font-outfit", subsets: ["latin"], weight: ["500", "600", "700"] });
 
 export const metadata: Metadata = {
@@ -17,9 +16,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${inter.variable} ${archivo.variable} ${outfit.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col font-sans">
-        <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-ink focus:px-3 focus:py-2 focus:text-white">
+    <html lang="en" className={`${interTight.variable} ${outfit.variable} h-full antialiased`}>
+      {/* Dark frame around every page; pages render light panels inside it. */}
+      <body className="flex min-h-full flex-col bg-ink p-2 font-sans sm:p-3">
+        <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-milk focus:px-3 focus:py-2 focus:text-ink">
           Skip to content
         </a>
         <Navbar />
