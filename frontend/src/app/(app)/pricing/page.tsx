@@ -51,6 +51,7 @@ export default function PricingPage() {
                       {Object.entries(p.limits_per_day).map(([k, v]) => (
                         <li key={k} className="flex gap-2"><span className="text-brand-500" aria-hidden="true">✓</span>{v} {LIMIT_LABELS[k] ?? k}</li>
                       ))}
+                      <li className="flex gap-2"><span className="text-brand-500" aria-hidden="true">✓</span>No daily image limit</li>
                       <li className="flex gap-2"><span className="text-brand-500" aria-hidden="true">✓</span>Lossless Privacy Clean</li>
                       <li className="flex gap-2"><span className="text-brand-500" aria-hidden="true">✓</span>C2PA provenance checks</li>
                     </ul>

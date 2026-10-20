@@ -83,7 +83,7 @@ def test_auth_me_and_bad_token(client):
                     files={"file": ("p.jpg", jpeg_with_gps(), "image/jpeg")})
     assert r.status_code == 200
     usage = client.get("/api/me", headers={"Authorization": f"Bearer {token()}"}).json()["usage_today"]
-    assert usage["image"]["used"] == 1
+    assert "image" not in usage  # images have no daily limit
 
 
 def test_pricing_uses_fallback_rate(client):

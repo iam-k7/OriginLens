@@ -43,9 +43,9 @@ class Settings(BaseSettings):
     rate_limit_per_minute: int = 60
     quotas: dict[str, dict[str, int]] = Field(
         default={
-            "anonymous": {"image": 10, "text": 5, "llm": 2},
-            "free": {"image": 30, "text": 20, "llm": 10},
-            "pro": {"image": 500, "text": 300, "llm": 150},
+            "anonymous": {"text": 5, "llm": 2},
+            "free": {"text": 20, "llm": 10},
+            "pro": {"text": 300, "llm": 150},
         }
     )
     trusted_proxy_count: int = 0

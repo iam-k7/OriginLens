@@ -129,3 +129,9 @@ def test_api_analyze_and_errors(client):
     r = client.post("/api/images/analyze", files={"file": ("x.png", b"nope", "image/png")})
     assert r.status_code == 415 and r.json()["error"]["code"] == "unsupported_format"
     assert r.json()["error"]["request_id"]
+
+
+def test_no_daily_image_limit(client):
+    codes = [client.post("/api/images/analyze", files={"file": ("p.jpg", jpeg_with_gps(), "image/jpeg")}).status_code
+             for _ in range(12)]
+    assert codes == [200] * 12  # the old anonymous cap was 10 a day

@@ -9,8 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import Settings, get_settings
 from app.core.errors import AppError
-from app.core.ratelimit import quota
-from app.core.security import Principal
+from app.core.security import Principal, get_principal
 from app.db.session import get_db
 from app.repositories import accounts
 from app.services import ai_signals, c2pa_service, metadata, sanitize, url_fetch
@@ -50,7 +49,7 @@ def _analyze(data: bytes, settings: Settings) -> dict:
 
 
 @router.post("/analyze")
-async def analyze(file: UploadFile = File(...), principal: Principal = Depends(quota("image")),
+async def analyze(file: UploadFile = File(...), principal: Principal = Depends(get_principal),
                   db: Session = Depends(get_db), settings: Settings = Depends(get_settings)):
     data = await _read(file, settings)
     with _job(db, principal, "image.analyze"):
@@ -58,7 +57,7 @@ async def analyze(file: UploadFile = File(...), principal: Principal = Depends(q
 
 
 @router.post("/analyze-url")
-async def analyze_url(body: UrlIn, principal: Principal = Depends(quota("image")),
+async def analyze_url(body: UrlIn, principal: Principal = Depends(get_principal),
                       db: Session = Depends(get_db), settings: Settings = Depends(get_settings)):
     with _job(db, principal, "image.analyze_url"):
         data = await run_in_threadpool(url_fetch.fetch_image, body.url, settings.max_upload_bytes,
@@ -71,7 +70,7 @@ async def analyze_url(body: UrlIn, principal: Principal = Depends(quota("image")
 
 
 @router.post("/ai-signals")
-async def ai_signals_route(file: UploadFile = File(...), principal: Principal = Depends(quota("image")),
+async def ai_signals_route(file: UploadFile = File(...), principal: Principal = Depends(get_principal),
                            db: Session = Depends(get_db), settings: Settings = Depends(get_settings)):
     data = await _read(file, settings)
     with _job(db, principal, "image.ai_signals"):
@@ -81,7 +80,7 @@ async def ai_signals_route(file: UploadFile = File(...), principal: Principal = 
 
 @router.post("/clean")
 async def clean(file: UploadFile = File(...), categories: str = Form(",".join(REMOVABLE)),
-                principal: Principal = Depends(quota("image")), db: Session = Depends(get_db),
+                principal: Principal = Depends(get_principal), db: Session = Depends(get_db),
                 settings: Settings = Depends(get_settings)):
     data = await _read(file, settings)
     cats = [c.strip() for c in categories.split(",") if c.strip()]
