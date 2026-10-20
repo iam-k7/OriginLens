@@ -31,36 +31,6 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   return body as T;
 }
 
-/** Multipart POST that reports upload progress (fetch cannot). Aborts when `signal` fires. */
-export async function uploadFile<T>(
-  path: string,
-  body: FormData,
-  onProgress: (loaded: number, total: number) => void,
-  signal?: AbortSignal,
-): Promise<T> {
-  const headers = await authHeader();
-  return new Promise<T>((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", `${API_URL}/api${path}`);
-    for (const [k, v] of Object.entries(headers)) xhr.setRequestHeader(k, v);
-    xhr.upload.onprogress = (e) => {
-      if (e.lengthComputable) onProgress(e.loaded, e.total);
-    };
-    xhr.onload = () => {
-      let parsed: { error?: { code: string; message: string; request_id?: string } } | null = null;
-      try { parsed = JSON.parse(xhr.responseText); } catch { /* non-JSON error page */ }
-      if (xhr.status >= 200 && xhr.status < 300) return resolve(parsed as T);
-      const e = parsed?.error;
-      reject(new ApiError(xhr.status, e?.code ?? "http_error", e?.message ?? `Request failed (${xhr.status})`, e?.request_id));
-    };
-    xhr.onerror = () => reject(new ApiError(0, "network_error", "Could not reach the OriginLens API. Check your connection and try again."));
-    xhr.onabort = () => reject(new ApiError(0, "cancelled", "Upload cancelled."));
-    if (signal?.aborted) return reject(new ApiError(0, "cancelled", "Upload cancelled."));
-    signal?.addEventListener("abort", () => xhr.abort(), { once: true });
-    xhr.send(body);
-  });
-}
-
 export function formatBytes(n: number): string {
   if (n < 1024) return `${n} B`;
   if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
