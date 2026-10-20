@@ -4,21 +4,27 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert, ErrorAlert, KV, Limitations, Section, Spinner, Tabs } from "@/components/ui";
 import { api, ApiError, base64ToBlob, formatBytes, uploadFile } from "@/lib/api";
 import { checkAiSignals, type AiSignals } from "@/lib/aiSignals";
+import { cleanBytes, findMetadata, sniffFormat, type CleanCategory, type Found } from "@/lib/cleanImage";
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- API payloads are rendered generically */
 type Analysis = { metadata: any; c2pa: any; privacy_clean_supported: boolean };
-type TabId = "overview" | "metadata" | "provenance" | "clean";
+type TabId = "overview" | "metadata" | "provenance";
 type Job = { name: string; size: number; sent: number; status: "uploading" | "analyzing" | "done" | "failed" };
 
 const ACCEPT = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const MAX_MB = 15;
-const CATEGORIES: { id: string; label: string; hint: string }[] = [
-  { id: "gps", label: "GPS location", hint: "Coordinates and altitude inside EXIF" },
-  { id: "exif", label: "All EXIF", hint: "Camera, lens, timestamps, software, serials (includes GPS)" },
-  { id: "xmp", label: "XMP", hint: "Editing history, creator tool, rights" },
-  { id: "iptc", label: "IPTC", hint: "Captions, keywords, by-line, copyright" },
-  { id: "c2pa", label: "Content Credentials", hint: "C2PA provenance manifest" },
-  { id: "comments", label: "Comments & text", hint: "JPEG comments, PNG text chunks, timestamps" },
+const CATEGORY_INFO: Record<CleanCategory, { label: string; hint: string }> = {
+  exif: { label: "EXIF", hint: "Camera, lens, timestamps, software and GPS location" },
+  xmp: { label: "XMP", hint: "Editing history, creator tool, rights" },
+  iptc: { label: "IPTC", hint: "Captions, keywords, by-line, copyright" },
+  c2pa: { label: "Content Credentials", hint: "C2PA provenance manifest" },
+  comments: { label: "Comments & text", hint: "JPEG comments, PNG text chunks, timestamps" },
+};
+const CLEAN_LIMITS = [
+  "Color profiles are kept, and pixel data is copied unchanged.",
+  "Removing metadata does not change where an image came from. AI-generated images stay AI-generated.",
+  "GPS lives inside EXIF, so it goes with EXIF. Removing only GPS needs the server.",
+  "Works for JPEG, PNG and WEBP.",
 ];
 
 const CLOUD = "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242M12 12v9M16 16l-4-4-4 4";
@@ -44,18 +50,29 @@ export default function AnalyzerPage() {
   const [error, setError] = useState<unknown>(null);
   const [result, setResult] = useState<Analysis | null>(null);
   const [aiCheck, setAiCheck] = useState<{ file: File; result: AiSignals } | null>(null);
-  const [clean, setClean] = useState<any>(null);
-  const [cats, setCats] = useState<string[]>(["gps"]);
+  const [found, setFound] = useState<{ file: File; items: Found[]; supported: boolean } | null>(null);
+  const [cats, setCats] = useState<CleanCategory[]>([]);
+  const [cleaned, setCleaned] = useState<{ url: string; filename: string; before: number; after: number; removed: Found[] } | null>(null);
   const [tab, setTab] = useState<TabId>("overview");
   const input = useRef<HTMLInputElement>(null);
   const abort = useRef<AbortController | null>(null);
   const [job, setJob] = useState<Job | null>(null);
 
   useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
+  useEffect(() => () => { if (cleaned) URL.revokeObjectURL(cleaned.url); }, [cleaned]);
+
+  const readFound = useCallback((f: File) => {
+    f.arrayBuffer().then((buf) => {
+      const bytes = new Uint8Array(buf);
+      const items = findMetadata(bytes);
+      setFound({ file: f, items, supported: sniffFormat(bytes) !== undefined });
+      setCats(items.map((x) => x.category));
+    }).catch(() => undefined);
+  }, []);
 
   const reset = useCallback(() => {
     abort.current?.abort();
-    setFile(null); setPreview(null); setResult(null); setAiCheck(null); setClean(null); setError(null); setJob(null); setTab("overview");
+    setFile(null); setPreview(null); setResult(null); setAiCheck(null); setFound(null); setCats([]); setCleaned(null); setError(null); setJob(null); setTab("overview");
     if (input.current) input.current.value = "";
   }, []);
 
@@ -71,6 +88,7 @@ export default function AnalyzerPage() {
     setFile(f); setPreview(URL.createObjectURL(f));
     setJob({ name: f.name, size: f.size, sent: 0, status: "uploading" });
     checkAiSignals(f).then((result) => setAiCheck({ file: f, result })).catch(() => undefined);
+    readFound(f);
     try {
       const fd = new FormData(); fd.append("file", f);
       const r = await uploadFile<Analysis>("/images/analyze", fd, (loaded, total) =>
@@ -85,7 +103,7 @@ export default function AnalyzerPage() {
         : e);
       setJob((j) => j && { ...j, status: "failed" });
     }
-  }, [reset]);
+  }, [reset, readFound]);
 
   useEffect(() => {
     const onPaste = (e: ClipboardEvent) => {
@@ -110,6 +128,7 @@ export default function AnalyzerPage() {
       const f = new File([blob], name, { type: r.image.mime_type });
       setFile(f);
       checkAiSignals(f).then((result) => setAiCheck({ file: f, result })).catch(() => undefined);
+      readFound(f);
       setPreview(URL.createObjectURL(blob));
       setResult(r);
       setJob({ name, size: blob.size, sent: blob.size, status: "done" });
@@ -118,19 +137,16 @@ export default function AnalyzerPage() {
 
   async function runClean() {
     if (!file || !cats.length) return;
-    setBusy("Cleaning metadata"); setError(null);
+    setError(null);
     try {
-      const fd = new FormData(); fd.append("file", file); fd.append("categories", cats.join(","));
-      setClean(await api<any>("/images/clean", { method: "POST", body: fd }));
-    } catch (e) { setError(e); } finally { setBusy(null); }
-  }
-
-  function download() {
-    const blob = base64ToBlob(clean.file.base64, clean.file.mime_type);
-    const href = URL.createObjectURL(blob);
-    const a = Object.assign(document.createElement("a"), { href, download: clean.file.filename });
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(href), 1000);
+      const before = new Uint8Array(await file.arrayBuffer());
+      const { bytes, removed } = cleanBytes(before, cats);
+      const dot = file.name.lastIndexOf(".");
+      const filename = dot > 0 ? `${file.name.slice(0, dot)}-clean${file.name.slice(dot)}` : `${file.name}-clean`;
+      setCleaned({ url: URL.createObjectURL(new Blob([bytes], { type: file.type })), filename, before: before.length, after: bytes.length, removed });
+    } catch (e) {
+      setError(new ApiError(0, "clean_failed", e instanceof Error ? e.message : "Could not clean this image."));
+    }
   }
 
   const m = result?.metadata;
@@ -240,7 +256,10 @@ export default function AnalyzerPage() {
               <AiResult ai={ai} />
             </div>
           )}
-          {!result && !busy && !error && !ai && (
+          {found && found.file === file && (
+            <CleanPanel items={found.items} supported={found.supported} cats={cats} setCats={setCats} onClean={runClean} cleaned={cleaned} />
+          )}
+          {!result && !busy && !error && !ai && !found && (
             <div className="card flex min-h-64 items-center justify-center p-8 text-center text-muted">
               Results appear here after you add an image.
             </div>
@@ -255,7 +274,6 @@ export default function AnalyzerPage() {
                   { id: "overview", label: "Overview" },
                   { id: "metadata", label: "Metadata" },
                   { id: "provenance", label: "Provenance" },
-                  { id: "clean", label: "Privacy Clean" },
                 ]}
               />
 
@@ -330,40 +348,6 @@ export default function AnalyzerPage() {
               {tab === "provenance" && <Provenance c2pa={result!.c2pa} />}
 
 
-              {tab === "clean" && (
-                <div className="space-y-4">
-                  {!result!.privacy_clean_supported ? (
-                    <Alert kind="info">Privacy Clean supports JPEG, PNG and WEBP.</Alert>
-                  ) : (
-                    <Section title="Privacy Clean">
-                      <fieldset>
-                        <legend className="text-sm text-muted">Choose what to remove. Pixels are copied unchanged; color profiles are kept.</legend>
-                        <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                          {CATEGORIES.map((c) => {
-                            const present = c.id === "gps" ? !!m.exif.GPS : m.blocks.some((b: any) => b.category === c.id) || (c.id === "comments" && !!m.comment);
-                            return (
-                              <label key={c.id} className={`flex cursor-pointer gap-3 rounded-xl border p-3 text-sm transition ${cats.includes(c.id) ? "border-brand-300 bg-brand-50" : "border-line"}`}>
-                                <input type="checkbox" className="mt-0.5 accent-brand-500" checked={cats.includes(c.id)}
-                                  onChange={(e) => setCats(e.target.checked ? [...cats, c.id] : cats.filter((x) => x !== c.id))} />
-                                <span>
-                                  <span className="font-medium">{c.label}</span>
-                                  {present && <span className="chip ml-2 border-brand-200 text-brand-700">found</span>}
-                                  <span className="block text-xs text-muted">{c.hint}</span>
-                                </span>
-                              </label>
-                            );
-                          })}
-                        </div>
-                      </fieldset>
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        <button onClick={() => setCats(CATEGORIES.map((c) => c.id))} className="btn-ghost">Select all</button>
-                        <button onClick={runClean} disabled={!!busy || !cats.length} className="btn-primary">Clean image</button>
-                      </div>
-                    </Section>
-                  )}
-                  {clean && <CleanResult clean={clean} onDownload={download} />}
-                </div>
-              )}
             </>
           )}
         </div>
@@ -433,33 +417,50 @@ function AiResult({ ai }: { ai: any }) {
   );
 }
 
-function CleanResult({ clean, onDownload }: { clean: any; onDownload: () => void }) {
-  const b = clean.before.technical, a = clean.after.technical;
-  const removedKeys = (meta: any) => Object.values(meta.exif as Record<string, object>).reduce((n, g) => n + Object.keys(g).length, 0)
-    + Object.keys(meta.xmp).length + Object.keys(meta.iptc).length + Object.keys(meta.text_chunks).length + (meta.comment ? 1 : 0);
+function CleanPanel({ items, supported, cats, setCats, onClean, cleaned }: {
+  items: Found[]; supported: boolean; cats: CleanCategory[]; setCats: (c: CleanCategory[]) => void; onClean: () => void;
+  cleaned: { url: string; filename: string; before: number; after: number; removed: Found[] } | null;
+}) {
   return (
     <>
-      <Section title="Cleaned image" aside={<button onClick={onDownload} className="btn-primary">Download {clean.file.filename}</button>}>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="text-muted"><tr><th className="py-2 font-medium" scope="col"></th><th scope="col" className="font-medium">Before</th><th scope="col" className="font-medium">After</th></tr></thead>
-            <tbody className="divide-y divide-line">
-              <tr><th scope="row" className="py-2 font-medium">File size</th><td>{formatBytes(b.file_size_bytes)}</td><td>{formatBytes(a.file_size_bytes)}</td></tr>
-              <tr><th scope="row" className="py-2 font-medium">Dimensions</th><td>{b.width} × {b.height}</td><td>{a.width} × {a.height}</td></tr>
-              <tr><th scope="row" className="py-2 font-medium">Metadata fields</th><td>{removedKeys(clean.before)}</td><td>{removedKeys(clean.after)}</td></tr>
-              <tr><th scope="row" className="py-2 font-medium">GPS</th><td>{clean.before.highlights.gps ? "Present" : "None"}</td><td>{clean.after.highlights.gps ? "Present" : "None"}</td></tr>
-              <tr><th scope="row" className="py-2 font-medium">Content Credentials</th><td>—</td><td>{clean.c2pa_after.present ? "Present" : "None"}</td></tr>
-              <tr><th scope="row" className="py-2 font-medium">ICC profile</th><td>{clean.before.color.icc_profile ? "Kept" : "None"}</td><td>{clean.after.color.icc_profile ? "Kept" : "None"}</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p className="mt-3 text-sm text-muted">Removed: {clean.removed.length ? clean.removed.map((r: any) => `${r.category} (${formatBytes(r.bytes)})`).join(", ") : "nothing — the selected metadata wasn't present."}</p>
+      <p className="eyebrow">Privacy Clean · runs in your browser</p>
+      <Section title="Remove metadata">
+        {!supported ? (
+          <Alert kind="info">Privacy Clean supports JPEG, PNG and WEBP.</Alert>
+        ) : items.length === 0 ? (
+          <p className="text-sm text-muted">No removable metadata found in this file.</p>
+        ) : (
+          <>
+            <fieldset>
+              <legend className="text-sm text-muted">Choose what to remove.</legend>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                {items.map(({ category, bytes }) => (
+                  <label key={category} className={`flex cursor-pointer gap-3 rounded-xl border p-3 text-sm transition ${cats.includes(category) ? "border-brand-300 bg-brand-50" : "border-line"}`}>
+                    <input type="checkbox" className="mt-0.5 accent-brand-500" checked={cats.includes(category)}
+                      onChange={(e) => setCats(e.target.checked ? [...cats, category] : cats.filter((x) => x !== category))} />
+                    <span>
+                      <span className="font-medium">{CATEGORY_INFO[category].label}</span>
+                      <span className="chip ml-2 border-line">{formatBytes(bytes)}</span>
+                      <span className="block text-xs text-muted">{CATEGORY_INFO[category].hint}</span>
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <button onClick={onClean} disabled={!cats.length} className="btn-primary mt-4">Clean image</button>
+          </>
+        )}
+        {cleaned && (
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4 text-sm">
+            <p className="text-muted">
+              Removed {cleaned.removed.map((r) => `${CATEGORY_INFO[r.category].label} (${formatBytes(r.bytes)})`).join(", ") || "nothing"} ·{" "}
+              {formatBytes(cleaned.before)} → {formatBytes(cleaned.after)}
+            </p>
+            <a href={cleaned.url} download={cleaned.filename} className="btn-primary">Download {cleaned.filename}</a>
+          </div>
+        )}
       </Section>
-      <div className="grid gap-4 md:grid-cols-2">
-        <Section title="Before"><KV data={Object.assign({}, ...Object.values(clean.before.exif as object), clean.before.xmp, clean.before.iptc)} /></Section>
-        <Section title="After"><KV data={Object.assign({}, ...Object.values(clean.after.exif as object), clean.after.xmp, clean.after.iptc)} /></Section>
-      </div>
-      <Limitations items={clean.limitations} />
+      <Limitations items={CLEAN_LIMITS} />
     </>
   );
 }
