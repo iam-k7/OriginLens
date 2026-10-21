@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert, ErrorAlert, KV, Limitations, Section, Spinner, Tabs } from "@/components/ui";
 import { api, ApiError, base64ToBlob, formatBytes } from "@/lib/api";
 import { readMetadata, type Details } from "@/lib/readMetadata";
+import { readCredentials, type Credentials } from "@/lib/c2paRead";
 import { checkAiSignals, type AiSignals } from "@/lib/aiSignals";
 import { cleanBytes, findMetadata, sniffFormat, type CleanCategory, type Found } from "@/lib/cleanImage";
 
@@ -51,6 +52,7 @@ export default function AnalyzerPage() {
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<unknown>(null);
   const [details, setDetails] = useState<{ file: File; data: Details } | null>(null);
+  const [credentials, setCredentials] = useState<{ file: File; data: Credentials } | null>(null);
   const [aiCheck, setAiCheck] = useState<{ file: File; result: AiSignals } | null>(null);
   const [found, setFound] = useState<{ file: File; items: Found[]; supported: boolean } | null>(null);
   const [cats, setCats] = useState<CleanCategory[]>([]);
@@ -64,7 +66,9 @@ export default function AnalyzerPage() {
 
   // Everything is read on this device; nothing is sent to a server.
   const load = useCallback((f: File) => {
-    checkAiSignals(f).then((result) => setAiCheck({ file: f, result })).catch(() => undefined);
+    const creds = readCredentials(f);
+    creds.then((data) => setCredentials({ file: f, data })).catch(() => undefined);
+    creds.then((c) => checkAiSignals(f, c)).then((result) => setAiCheck({ file: f, result })).catch(() => undefined);
     readMetadata(f).then((data) => setDetails({ file: f, data })).catch(() => setError(new ApiError(0, "read_failed", "Could not read this image's metadata.")));
     f.arrayBuffer().then((buf) => {
       const bytes = new Uint8Array(buf);
@@ -75,7 +79,7 @@ export default function AnalyzerPage() {
   }, []);
 
   const reset = useCallback(() => {
-    setFile(null); setPreview(null); setDetails(null); setAiCheck(null); setFound(null); setCats([]); setCleaned(null); setError(null); setJob(null); setTab("overview");
+    setFile(null); setPreview(null); setDetails(null); setCredentials(null); setAiCheck(null); setFound(null); setCats([]); setCleaned(null); setError(null); setJob(null); setTab("overview");
     if (input.current) input.current.value = "";
   }, []);
 
@@ -135,6 +139,7 @@ export default function AnalyzerPage() {
 
   const d = details && details.file === file ? details.data : null;
   const ai = aiCheck && aiCheck.file === file ? aiCheck.result : null;
+  const cr = credentials && credentials.file === file ? credentials.data : null;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
@@ -282,7 +287,7 @@ export default function AnalyzerPage() {
                 </div>
               )}
 
-              {tab === "provenance" && <Provenance present={d.blocks.some((b) => b.category === "c2pa")} />}
+              {tab === "provenance" && <Provenance present={d.blocks.some((b) => b.category === "c2pa")} creds={cr} />}
             </>
           )}
         </div>
@@ -291,14 +296,25 @@ export default function AnalyzerPage() {
   );
 }
 
-function Provenance({ present }: { present: boolean }) {
+function Provenance({ present, creds }: { present: boolean; creds: Credentials | null }) {
+  if (!present) {
+    return (
+      <Section title="Content Credentials (C2PA)">
+        <p className="text-sm text-muted">No Content Credentials found. Many cameras and apps don&apos;t add them, and most platforms strip them — absence is not evidence either way.</p>
+      </Section>
+    );
+  }
+  if (!creds) return <Section title="Content Credentials (C2PA)"><Spinner label="Reading Content Credentials" /></Section>;
+  const verified = creds.validation === "Valid" || creds.validation === "Trusted";
   return (
-    <Section title="Content Credentials (C2PA)">
-      <p className="text-sm text-muted">
-        {present
-          ? "A Content Credentials marker is in this file. Its signature is not verified in the browser."
-          : "No Content Credentials found. Many cameras and apps don't add them, and most platforms strip them — absence is not evidence either way."}
-      </p>
+    <Section title="Content Credentials (C2PA)" aside={creds.validation && (
+      <span className={`chip ${verified ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-brand-200 bg-brand-50 text-brand-700"}`}>{creds.validation}</span>
+    )}>
+      {creds.error && <Alert kind="warn">{creds.error}</Alert>}
+      <KV data={{
+        "Claim generator": creds.generator, Title: creds.title, "Signed by": creds.issuer, "Signed at": creds.signedAt,
+        "Digital source": creds.sourceTypes, "Validation issues": creds.issues,
+      }} />
     </Section>
   );
 }

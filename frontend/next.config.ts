@@ -5,7 +5,9 @@ const supabase = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 
 const csp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'" + (process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""),
+  // wasm-unsafe-eval and the blob worker: the C2PA reader runs as WebAssembly in a worker.
+  "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'" + (process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""),
+  "worker-src 'self' blob:",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' blob: data:",
   "font-src 'self'",

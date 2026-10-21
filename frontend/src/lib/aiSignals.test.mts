@@ -49,6 +49,28 @@ test("camera data alone is camera_indicators; no metadata is inconclusive", () =
   assert.ok(plain.evidence.some((e) => e.signal === "No embedded metadata"));
 });
 
+/** A PNG that carries a C2PA chunk (caBX), as AI tools write into their output. */
+function pngWithC2pa(): Uint8Array {
+  const base = png();
+  const chunk = [...be32(4), ...enc.encode("caBX"), 1, 2, 3, 4, 0, 0, 0, 0];
+  const iend = base.length - 12;
+  return new Uint8Array([...base.subarray(0, iend), ...chunk, ...base.subarray(iend)]);
+}
+const AI_TYPE = "http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia";
+
+test("a Content Credentials manifest that declares AI counts; a verified signature makes it strong", () => {
+  const creds = { present: true, generator: "ChatGPT", sourceTypes: [AI_TYPE], issues: [] };
+  assert.equal(scanBytes(pngWithC2pa(), {}, undefined, { ...creds, validation: "Valid" }).verdict, "declared_ai");
+  assert.equal(scanBytes(pngWithC2pa(), {}, undefined, { ...creds, validation: "Invalid" }).verdict, "ai_indicators");
+});
+
+test("a C2PA marker without a read manifest is shown, and is not 'no metadata'", () => {
+  const r = scanBytes(pngWithC2pa());
+  assert.ok(r.evidence.some((e) => e.signal === "Content Credentials present"));
+  assert.ok(!r.evidence.some((e) => e.signal === "No embedded metadata"));
+  assert.equal(r.verdict, "inconclusive");
+});
+
 test("generator-sized dimensions are weak evidence only", () => {
   const r = scanBytes(png(), {}, { width: 1024, height: 1024 });
   assert.equal(r.verdict, "inconclusive");

@@ -3,6 +3,7 @@
  * analysed, no probability score is produced, and the file never leaves the device.
  */
 import exifr from "exifr";
+import type { Credentials } from "./c2paRead";
 
 export type AiEvidence = {
   source: string;
@@ -105,8 +106,11 @@ function readMetadata(b: Uint8Array, format: string): Meta {
     for (const seg of jpegSegments(b)) {
       const isMetadata = (seg.marker >= 0xe1 && seg.marker <= 0xef) || seg.marker === 0xfe;
       if (!isMetadata) continue;
+      if (seg.marker === 0xeb && (has(seg.data, "jumb", 60) || has(seg.data, "c2pa", 120))) {
+        meta.c2pa = true; // the manifest is read by the C2PA reader, not searched as text
+        continue;
+      }
       meta.blobs.push(seg.data);
-      if (seg.marker === 0xeb && (has(seg.data, "jumb", 60) || has(seg.data, "c2pa", 120))) meta.c2pa = true;
     }
   } else if (format === "PNG") {
     for (const c of pngChunks(b)) {
@@ -131,8 +135,27 @@ function generatorIn(value: unknown): string | undefined {
   return GENERATORS.find((g) => t.includes(g));
 }
 
-/** The check itself, over the file bytes and parsed EXIF. Pure, so it can be tested in Node. */
-export function scanBytes(bytes: Uint8Array, exif: Exif = {}, dims?: { width: number; height: number }): AiSignals {
+/** Evidence from a Content Credentials manifest, as read by the C2PA SDK (or its failure to read). */
+function manifestEvidence(c?: Credentials): AiEvidence[] {
+  const verified = c?.validation === "Valid" || c?.validation === "Trusted";
+  const out: AiEvidence[] = [];
+  for (const t of c?.sourceTypes ?? []) {
+    if (AI_SOURCE_TYPES.some((a) => t.endsWith(a))) {
+      out.push({ source: "C2PA", signal: "AI digital source type", detail: `${t.split("/").pop()} (${verified ? "signature verified" : "signature not verified"})`, strength: verified ? "strong" : "moderate", direction: "ai" });
+    }
+  }
+  if (generatorIn(c?.generator)) {
+    out.push({ source: "C2PA", signal: "Generator tool", detail: `Claim generator: ${c?.generator}`, strength: "moderate", direction: "ai" });
+  }
+  if (!out.length) {
+    const detail = c?.error ?? (c?.generator ? `Claim generator: ${c.generator}` : "A manifest marker is in the file; it was not read");
+    out.push({ source: "C2PA", signal: "Content Credentials present", detail, strength: "weak", direction: "neutral" });
+  }
+  return out;
+}
+
+/** The check itself, over the file bytes, parsed EXIF and any read C2PA manifest. Pure, so it can be tested in Node. */
+export function scanBytes(bytes: Uint8Array, exif: Exif = {}, dims?: { width: number; height: number }, credentials?: Credentials): AiSignals {
   const meta = readMetadata(bytes, sniff(bytes));
   const text = meta.blobs.map((b) => LATIN1.decode(b)).join("\n");
   const evidence: AiEvidence[] = [];
@@ -165,11 +188,9 @@ export function scanBytes(bytes: Uint8Array, exif: Exif = {}, dims?: { width: nu
     evidence.push({ source: "Technical", signal: "Generator-typical dimensions", detail: `${dims.width}×${dims.height} (multiples of 64)`, strength: "weak", direction: "ai" });
   }
 
-  if (meta.c2pa) {
-    evidence.push({ source: "C2PA", signal: "Content Credentials present", detail: "A manifest marker is in the file; its signature is not checked here", strength: "weak", direction: "neutral" });
-  }
+  if (meta.c2pa) evidence.push(...manifestEvidence(credentials));
 
-  if (meta.blobs.length === 0 && Object.keys(exif).length === 0) {
+  if (meta.blobs.length === 0 && !meta.c2pa && Object.keys(exif).length === 0) {
     evidence.push({ source: "Technical", signal: "No embedded metadata", detail: "Common after screenshots or social uploads; not evidence either way", strength: "weak", direction: "neutral" });
   }
 
@@ -196,7 +217,7 @@ export function scanBytes(bytes: Uint8Array, exif: Exif = {}, dims?: { width: nu
 }
 
 /** Reads the file on this device. Nothing is sent to a server. */
-export async function checkAiSignals(file: File): Promise<AiSignals> {
+export async function checkAiSignals(file: File, credentials?: Credentials): Promise<AiSignals> {
   const bytes = new Uint8Array(await file.arrayBuffer());
   const exif: Exif =
     (await exifr.parse(bytes, { tiff: true, exif: true, gps: true, xmp: true, iptc: true, icc: false, ihdr: false, jfif: false, mergeOutput: true }).catch(() => undefined)) ?? {};
@@ -209,5 +230,5 @@ export async function checkAiSignals(file: File): Promise<AiSignals> {
   } catch {
     // Not a decodable image: skip the size check.
   }
-  return scanBytes(bytes, exif, dims);
+  return scanBytes(bytes, exif, dims, credentials);
 }
