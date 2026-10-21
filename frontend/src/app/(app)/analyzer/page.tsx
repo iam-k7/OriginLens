@@ -327,10 +327,17 @@ const VERDICT: Record<string, string> = {
 };
 
 function AiResult({ ai }: { ai: any }) {
+  const stripped = ai.verdict === "inconclusive" && ai.evidence.some((e: any) => e.signal === "No embedded metadata");
   return (
     <>
       <Section title="Result" aside={<span className="chip border-line">Confidence: {ai.confidence}</span>}>
-        <p className="font-display text-xl font-semibold">{VERDICT[ai.verdict]}</p>
+        <p className="font-display text-xl font-semibold">{stripped ? "Can't tell: no metadata is left in this file" : VERDICT[ai.verdict]}</p>
+        {stripped && (
+          <Alert kind="warn">
+            Chat apps, screenshots and converters remove the labels that say how an image was made, so an AI image and a real photo look the same here.
+            Only the file&apos;s metadata is checked; the picture itself is not analysed.
+          </Alert>
+        )}
         <Alert kind="info">
           <strong className="text-ink">AI probability score: unavailable.</strong> {ai.detector.reason} The result above is based only on evidence found in the file.
         </Alert>
