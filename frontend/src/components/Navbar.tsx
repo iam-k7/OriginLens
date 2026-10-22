@@ -11,6 +11,7 @@ const LINKS = [
   { href: "/", label: "Home" },
   { href: "/analyzer", label: "Image Analyzer" },
   { href: "/text", label: "Text and Blog Intelligence" },
+  { href: "/blog", label: "Blog" },
 ];
 
 const chip = "pointer-events-auto rounded-md bg-white/90 shadow-[0_1px_2px_rgb(0_0_0/0.08)] ring-1 ring-line";
