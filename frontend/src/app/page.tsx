@@ -169,7 +169,7 @@ export default function Home() {
           <h2 className="relative mx-auto max-w-3xl font-display text-4xl font-normal leading-[1.02] tracking-[-0.05em] sm:text-6xl">
             Know what your files say <span className="text-dim">before you share them.</span>
           </h2>
-          <p className="relative mt-5 text-dim">Free to start. No card. Nothing stored.</p>
+          <p className="relative mt-5 text-dim">Free. No card. Nothing stored.</p>
           <div className="relative mt-8 flex flex-col justify-center gap-2 sm:flex-row">
             <Link href="/analyzer" className="btn-primary">Analyze an image</Link>
             <Link href="/text" className="btn-ghost-dark">Analyze text</Link>

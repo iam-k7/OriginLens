@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { Logo } from "./Logo";
 
 const COLS = [
-  { title: "Product", links: [["/analyzer", "Image Analyzer"], ["/text", "Text and Blog Intelligence"], ["/pricing", "Pricing"]] },
+  { title: "Product", links: [["/analyzer", "Image Analyzer"], ["/text", "Text and Blog Intelligence"]] },
   { title: "Account", links: [["/login", "Log in"], ["/signup", "Sign up"]] },
   { title: "Legal", links: [["/privacy", "Privacy Policy"]] },
 ];

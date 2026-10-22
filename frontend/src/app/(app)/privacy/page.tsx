@@ -84,7 +84,6 @@ export default function PrivacyPage() {
             may route it to the underlying model provider. Their own privacy terms apply to that processing. Do not
             submit text you are not comfortable sending to them.</li>
           <li><strong>Google and GitHub</strong> — only if you choose to sign in with them.</li>
-          <li>A public exchange-rate service, used to show INR prices. It receives no personal data.</li>
         </ul>
         <p>We may also disclose data where the law requires it, or to protect the rights and safety of our users and
           service.</p>
