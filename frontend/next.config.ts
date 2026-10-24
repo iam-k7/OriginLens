@@ -9,7 +9,8 @@ const csp = [
   "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'" + (process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""),
   "worker-src 'self' blob:",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' blob: data:",
+  // Profile photos from Google and GitHub sign-ins, shown in the navbar avatar.
+  "img-src 'self' blob: data: https://lh3.googleusercontent.com https://avatars.githubusercontent.com",
   "font-src 'self'",
   `connect-src 'self' ${api} ${supabase}`.trim(),
   "frame-ancestors 'none'",
