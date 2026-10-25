@@ -48,8 +48,27 @@ function load(onProgress: (fraction: number) => void) {
 // Python's round(): halves go to the even neighbour.
 const roundHalfEven = (v: number) => { const f = Math.floor(v); const d = v - f; return d > 0.5 || (d === 0.5 && f % 2 === 1) ? f + 1 : f; };
 
+// Same cap as the API's max_image_pixels: a full decode needs about 4 bytes per pixel, several times over.
+const MAX_PIXELS = 60_000_000;
+
+/** Width and height from the header, without decoding the pixels (an <img> load event fires before any decode). */
+async function dimensions(file: File): Promise<{ width: number; height: number }> {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = new Image();
+    await new Promise((ok, fail) => { img.onload = ok; img.onerror = () => fail(new Error("This image could not be read.")); img.src = url; });
+    return { width: img.naturalWidth, height: img.naturalHeight };
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
 /** The authors' test transform (torchvision Resize(440) on a PIL image, CenterCrop(384), ImageNet normalisation), as CHW float32. */
 async function toTensor(ort: typeof Ort, file: File): Promise<Ort.Tensor> {
+  const { width, height } = await dimensions(file);
+  if (width * height > MAX_PIXELS) {
+    throw new Error(`The image is too large to check here (${width} × ${height}). The limit is ${MAX_PIXELS / 1e6} megapixels.`);
+  }
   // No colour-profile conversion: PIL feeds the model the file's raw RGB values.
   const bitmap = await createImageBitmap(file, { colorSpaceConversion: "none", premultiplyAlpha: "none" });
   const { width: sw, height: sh } = bitmap;

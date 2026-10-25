@@ -17,7 +17,7 @@ services:
       - key: TRUSTED_PROXY_COUNT # Render adds one proxy hop in front of the app
         value: "1"
       - key: CORS_ORIGINS
-        value: '["https://originlens-two.vercel.app"]' # add your custom domain here as a second entry
+        value: '["https://www.originlens.bond", "https://originlens-two.vercel.app"]'
       - key: SUPABASE_URL
         value: https://lvymkstqztdgkanqmhoh.supabase.co
       - key: REDIS_URL

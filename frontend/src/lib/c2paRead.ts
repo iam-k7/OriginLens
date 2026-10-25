@@ -42,7 +42,9 @@ async function start() {
 
 export async function readCredentials(file: File): Promise<Credentials> {
   const none: Credentials = { present: false, sourceTypes: [], issues: [] };
-  const bytes = new Uint8Array(await file.arrayBuffer());
+  // Never reject: the Provenance tab and the label check both wait on this result.
+  const bytes = await file.arrayBuffer().then((b) => new Uint8Array(b), () => null);
+  if (!bytes) return { ...none, error: "The file could not be read." };
   const format = sniffFormat(bytes);
   if (!format || !findMetadata(bytes).some((f) => f.category === "c2pa")) return none;
 

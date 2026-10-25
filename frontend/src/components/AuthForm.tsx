@@ -193,7 +193,11 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           <div className="relative">
             <MailIcon className={MAIL_ICON} />
             <input type="email" aria-label="Email address" autoComplete="email" placeholder="you@gmail.com" value={email}
-              disabled={verified} onChange={(e) => setEmail(e.target.value)} className={`${FIELD} pl-14 pr-36`} />
+              disabled={verified} onChange={(e) => {
+                setEmail(e.target.value);
+                // A sent code belongs to the old address: start over so the new one can get its own code.
+                if (codeSent) { setSentAt(null); setCode(""); setInfo(null); }
+              }} className={`${FIELD} pl-14 pr-36`} />
             {verified ? (
               <span className="absolute right-6 top-1/2 flex -translate-y-1/2 items-center gap-1.5 text-sm font-medium text-emerald-300">
                 <CheckIcon /> Verified

@@ -90,6 +90,14 @@ def test_ai_signals_never_scores_and_reads_sd_parameters():
     assert camera["verdict"] == "camera_indicators" and camera["confidence"] == "low"
 
 
+def test_ai_signals_reads_generator_from_claim_generator_info():
+    meta = metadata.inspect(_png_with_text("Comment", "hello"), "PNG")
+    c2pa = {"present": True, "manifest": {"claim_generator": None, "claim_generator_info": [{"name": "ChatGPT"}]}}
+    out = ai_signals.analyze(meta, c2pa)
+    assert any(e["signal"] == "Generator tool" for e in out["evidence"])
+    assert out["verdict"] == "ai_indicators"
+
+
 @pytest.mark.parametrize("url", ["http://127.0.0.1/x.png", "http://169.254.169.254/latest", "http://10.0.0.1/a",
                                  "http://[::1]/a", "file:///etc/passwd", "http://example.com:8080/a.png",
                                  "http://user:pw@example.com/a.png", "gopher://example.com/"])

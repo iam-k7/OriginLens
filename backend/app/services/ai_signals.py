@@ -38,7 +38,9 @@ def analyze(meta: dict, c2pa: dict) -> dict:
             verified = "verified signature" if c2pa.get("verified") else "signature NOT verified"
             ev.append(_ev("C2PA", "AI digital source type", f"{dst.rsplit('/', 1)[-1]} ({verified})",
                           "strong" if c2pa.get("verified") else "moderate", "ai"))
-    hit = _generator_hit(manifest.get("claim_generator"))
+    # C2PA 2.x manifests name the tool in claim_generator_info and often leave claim_generator empty.
+    names = [manifest.get("claim_generator") or ""] + [i.get("name") or "" for i in manifest.get("claim_generator_info") or []]
+    hit = _generator_hit(" ".join(names))
     if hit:
         ev.append(_ev("C2PA", "Generator tool", f"Claim generator mentions '{hit}'", "moderate", "ai"))
     if c2pa.get("present") and not manifest:

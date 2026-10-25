@@ -60,6 +60,7 @@ export default function AnalyzerPage() {
   const [cleaned, setCleaned] = useState<{ url: string; filename: string; before: number; after: number; removed: Found[] } | null>(null);
   const [tab, setTab] = useState<TabId>("overview");
   const input = useRef<HTMLInputElement>(null);
+  const current = useRef<File | null>(null); // the file on screen, so late results for an older file are dropped
   const [job, setJob] = useState<Job | null>(null);
 
   useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
@@ -67,10 +68,13 @@ export default function AnalyzerPage() {
 
   // Everything is read on this device; nothing is sent to a server.
   const load = useCallback((f: File) => {
+    current.current = f;
     const creds = readCredentials(f);
     creds.then((data) => setCredentials({ file: f, data })).catch(() => undefined);
     creds.then((c) => checkAiSignals(f, c)).then((result) => setAiCheck({ file: f, result })).catch(() => undefined);
-    readMetadata(f).then((data) => setDetails({ file: f, data })).catch(() => setError(new ApiError(0, "read_failed", "Could not read this image's metadata.")));
+    readMetadata(f).then((data) => setDetails({ file: f, data })).catch(() => {
+      if (current.current === f) setError(new ApiError(0, "read_failed", "Could not read this image's metadata."));
+    });
     f.arrayBuffer().then((buf) => {
       const bytes = new Uint8Array(buf);
       const items = findMetadata(bytes);
@@ -80,6 +84,7 @@ export default function AnalyzerPage() {
   }, []);
 
   const reset = useCallback(() => {
+    current.current = null;
     setFile(null); setPreview(null); setDetails(null); setCredentials(null); setAiCheck(null); setFound(null); setCats([]); setCleaned(null); setError(null); setJob(null); setTab("overview");
     if (input.current) input.current.value = "";
   }, []);
