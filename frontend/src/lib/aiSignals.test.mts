@@ -28,7 +28,6 @@ test("Stable Diffusion parameters are a strong AI declaration", () => {
   const r = scanBytes(png(["parameters", "a cat, Steps: 20, Sampler: Euler a"]));
   assert.equal(r.verdict, "declared_ai");
   assert.equal(r.confidence, "high");
-  assert.equal(r.detector.score, null);
 });
 
 test("an XMP AI source type is an indicator, not a declaration", () => {

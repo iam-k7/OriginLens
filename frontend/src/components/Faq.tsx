@@ -11,7 +11,7 @@ const FAQS = [
   },
   {
     q: "Can OriginLens tell if an image is AI-generated?",
-    a: "It shows the evidence the file carries: Content Credentials (C2PA), IPTC digital-source tags and generator fingerprints. No validated pixel-level detector is integrated, so we never show a made-up probability — and missing metadata proves nothing either way.",
+    a: "It shows the evidence the file carries: Content Credentials (C2PA), IPTC digital-source tags and generator fingerprints. You can also run an experimental pixel check (an open model that runs on your device) that gives an AI likelihood. It can miss AI images, so a low score does not prove an image is real — and missing metadata proves nothing either way.",
   },
   {
     q: "What does Privacy Clean remove?",

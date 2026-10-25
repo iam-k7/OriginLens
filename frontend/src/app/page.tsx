@@ -19,7 +19,7 @@ const FEATURES = [
   ["Metadata inspection", "EXIF, GPS, camera, software, XMP, IPTC and color profiles — read straight from the file, never guessed."],
   ["Content Credentials", "Verify C2PA manifests: who signed them, which tool made the image, and whether AI was declared."],
   ["Privacy Clean", "Strip GPS or all removable metadata without re-encoding. Same pixels, same quality."],
-  ["AI signals, honestly", "Evidence with strength and limits. No made-up percentages when no validated detector backs them."],
+  ["AI signals, honestly", "Evidence with strength and limits, plus an experimental pixel check that runs on your device."],
   ["Text intelligence", "Explainable style signals sentence by sentence, plus an optional deep review."],
   ["Rewrite naturally", "Improve clarity, flow and tone while keeping your meaning, facts and voice."],
 ];

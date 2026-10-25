@@ -1,6 +1,6 @@
 /**
- * Browser-side AI-generation check. It reads metadata and text chunks only: no pixels are
- * analysed, no probability score is produced, and the file never leaves the device.
+ * Browser-side AI-generation check. It reads metadata and text chunks only (the pixel model lives in
+ * pixelCheck.ts), produces no probability score, and the file never leaves the device.
  */
 import exifr from "exifr";
 import type { Credentials } from "./c2paRead";
@@ -18,7 +18,6 @@ export type AiSignals = {
   confidence: "high" | "medium" | "low";
   evidence: AiEvidence[];
   limitations: string[];
-  detector: { status: "unavailable"; score: null; reason: string };
 };
 
 type Exif = Record<string, unknown>;
@@ -35,7 +34,7 @@ const GENERATORS = [
 ];
 const GEN_SIZES = new Set([512, 576, 640, 704, 768, 832, 896, 960, 1024, 1152, 1216, 1280, 1344, 1536, 1792, 2048]);
 const LIMITATIONS = [
-  "No validated pixel-level AI detector is used, so no AI probability score is shown.",
+  "This result reads the file's labels only. The separate pixel check is experimental and can miss AI images.",
   "Metadata can be stripped or forged. A missing label proves nothing either way.",
   "Camera EXIF can be copied onto generated images. Treat it as weak evidence.",
   "Screenshots, re-uploads and social platforms usually remove these signals.",
@@ -212,7 +211,6 @@ export function scanBytes(bytes: Uint8Array, exif: Exif = {}, dims?: { width: nu
     confidence,
     evidence,
     limitations: LIMITATIONS,
-    detector: { status: "unavailable", score: null, reason: "No validated pixel-level AI-image detector is configured." },
   };
 }
 

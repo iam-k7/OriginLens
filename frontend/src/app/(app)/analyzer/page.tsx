@@ -6,6 +6,7 @@ import { api, ApiError, base64ToBlob, formatBytes } from "@/lib/api";
 import { readMetadata, type Details } from "@/lib/readMetadata";
 import { readCredentials, type Credentials } from "@/lib/c2paRead";
 import { checkAiSignals, type AiSignals } from "@/lib/aiSignals";
+import { MODEL_MB, pixelAiScore } from "@/lib/pixelCheck";
 import { cleanBytes, findMetadata, sniffFormat, type CleanCategory, type Found } from "@/lib/cleanImage";
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- API payloads are rendered generically */
@@ -222,7 +223,7 @@ export default function AnalyzerPage() {
           {ai && (
             <div className="space-y-4">
               <p className="eyebrow">AI check · runs in your browser</p>
-              <AiResult ai={ai} />
+              <AiResult ai={ai} file={file} />
             </div>
           )}
           {found && found.file === file && (
@@ -326,7 +327,7 @@ const VERDICT: Record<string, string> = {
   inconclusive: "No AI markers found in the file",
 };
 
-function AiResult({ ai }: { ai: any }) {
+function AiResult({ ai, file }: { ai: any; file: File | null }) {
   const stripped = ai.verdict === "inconclusive" && ai.evidence.some((e: any) => e.signal === "No embedded metadata");
   return (
     <>
@@ -335,13 +336,11 @@ function AiResult({ ai }: { ai: any }) {
         {stripped && (
           <Alert kind="warn">
             Chat apps, screenshots and converters remove the labels that say how an image was made, so an AI image and a real photo look the same here.
-            Only the file&apos;s metadata is checked; the picture itself is not analysed.
+            This result reads the file&apos;s labels only; the pixel check below looks at the picture itself.
           </Alert>
         )}
-        <Alert kind="info">
-          <strong className="text-ink">AI probability score: unavailable.</strong> {ai.detector.reason} The result above is based only on evidence found in the file.
-        </Alert>
       </Section>
+      {file && <PixelCheck key={`${file.name}-${file.size}-${file.lastModified}`} file={file} />}
       <Section title="Evidence">
         {ai.evidence.length ? (
           <ul className="divide-y divide-line">
@@ -407,5 +406,49 @@ function CleanPanel({ items, supported, cats, setCats, onClean, cleaned }: {
       </Section>
       <Limitations items={CLEAN_LIMITS} />
     </>
+  );
+}
+
+/** Experimental pixel model, run on request because the model is an 87 MB download the first time. */
+function PixelCheck({ file }: { file: File }) {
+  const [state, setState] = useState<{ step: "idle" | "download" | "run" | "done" | "error"; progress?: number; score?: number; error?: string }>({ step: "idle" });
+
+  async function run() {
+    setState({ step: "download", progress: 0 });
+    try {
+      const score = await pixelAiScore(file, (progress) => setState({ step: progress < 1 ? "download" : "run", progress }));
+      setState({ step: "done", score });
+    } catch (e) {
+      setState({ step: "error", error: e instanceof Error ? e.message : String(e) });
+    }
+  }
+
+  const pct = state.score === undefined ? 0 : Math.round(state.score * 100);
+  return (
+    <Section title="Pixel check" aside={<span className="chip border-line">Experimental</span>}>
+      {state.step === "idle" && (
+        <>
+          <p className="text-sm text-muted">
+            Looks at the picture itself with an open AI-image model (Community Forensics). It runs on your device; the image is not uploaded.
+          </p>
+          <button onClick={run} className="btn-dark mt-3">Run pixel check · {MODEL_MB} MB download the first time</button>
+        </>
+      )}
+      {state.step === "download" && <Spinner label={`Downloading the model… ${Math.round((state.progress ?? 0) * 100)}%`} />}
+      {state.step === "run" && <Spinner label="Checking the picture…" />}
+      {state.step === "error" && <Alert kind="error">The pixel check failed: {state.error}</Alert>}
+      {state.step === "done" && (
+        <>
+          <p className="font-display text-xl font-semibold">AI likelihood: {pct}%</p>
+          <div className="mt-2 h-2 overflow-hidden rounded-full bg-surface" role="img" aria-label={`AI likelihood ${pct}%`}>
+            <div className="h-full rounded-full bg-brand-500" style={{ width: `${pct}%` }} />
+          </div>
+          <Alert kind="warn">
+            Experimental. In our tests it flagged no real photos as AI, but it missed some AI images with a very low score.
+            A low score does not prove an image is real, and a high score is not proof on its own.
+          </Alert>
+        </>
+      )}
+    </Section>
   );
 }
