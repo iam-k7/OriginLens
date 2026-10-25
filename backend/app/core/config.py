@@ -27,6 +27,9 @@ class Settings(BaseSettings):
     exiftool_path: str = "exiftool"
 
     # LLM providers (OpenAI-compatible chat APIs)
+    nvidia_api_key: str = ""
+    nvidia_base_url: str = "https://integrate.api.nvidia.com/v1"
+    nvidia_model: str = "nvidia/nemotron-3-ultra-550b-a55b"
     openrouter_api_key: str = ""
     openrouter_base_url: str = "https://openrouter.ai/api/v1"
     openrouter_model: str = "meta-llama/llama-3.3-70b-instruct"

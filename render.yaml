@@ -28,6 +28,8 @@ services:
       # Secrets: Render asks for these when you create the Blueprint.
       - key: DATABASE_URL # Supabase pooler string, format: postgresql+psycopg://...
         sync: false
+      - key: NVIDIA_API_KEY
+        sync: false
       - key: OPENROUTER_API_KEY
         sync: false
       - key: GROQ_API_KEY

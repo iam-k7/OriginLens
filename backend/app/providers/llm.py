@@ -1,6 +1,6 @@
-"""LLM provider layer: OpenRouter primary, Groq fallback.
+"""LLM provider layer: NVIDIA first, then OpenRouter, then Groq (each only if its key is set).
 
-Both expose the OpenAI chat-completions API, so one client class serves both.
+All expose the OpenAI chat-completions API, so one client class serves them all.
 Adds per-call timeouts, bounded retries with backoff, a per-provider circuit breaker,
 normalized errors and usage reporting.
 """
@@ -133,7 +133,8 @@ _breakers: dict[str, CircuitBreaker] = {}
 
 
 def build_providers(s: Settings) -> list[ChatProvider]:
-    configs = [("openrouter", s.openrouter_base_url, s.openrouter_api_key, s.openrouter_model),
+    configs = [("nvidia", s.nvidia_base_url, s.nvidia_api_key, s.nvidia_model),
+               ("openrouter", s.openrouter_base_url, s.openrouter_api_key, s.openrouter_model),
                ("groq", s.groq_base_url, s.groq_api_key, s.groq_model)]
     out = []
     for name, url, key, model in configs:
