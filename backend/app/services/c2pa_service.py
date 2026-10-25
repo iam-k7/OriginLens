@@ -59,7 +59,9 @@ def inspect(fmt: str, mime: str, data: bytes) -> dict:
                 "signature_issuer": sig.get("issuer"),
                 "signed_at": sig.get("time"),
                 "assertions": sorted({a.get("label", "") for a in active.get("assertions", [])}),
-                "digital_source_types": _digital_source_types(active),
+                # Every manifest in the file's history: an AI step is often one edit back (e.g. Google's watermark manifest on top).
+                "digital_source_types": list(dict.fromkeys(
+                    t for m in store.get("manifests", {}).values() for t in _digital_source_types(m))),
                 "validation_issues": [s.get("code") for s in store.get("validation_status") or []][:20],
             },
         )

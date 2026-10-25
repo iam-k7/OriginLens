@@ -324,20 +324,23 @@ const VERDICT: Record<string, string> = {
   declared_ai: "The file declares AI generation",
   ai_indicators: "The file contains AI-related indicators",
   camera_indicators: "The file contains camera capture data",
-  inconclusive: "No AI markers found in the file",
+  inconclusive: "No AI label written in the file",
 };
 
 function AiResult({ ai, file }: { ai: any; file: File | null }) {
   const stripped = ai.verdict === "inconclusive" && ai.evidence.some((e: any) => e.signal === "No embedded metadata");
   return (
     <>
-      <Section title="Result" aside={<span className="chip border-line">Confidence: {ai.confidence}</span>}>
+      <Section title="File labels" aside={<span className="chip border-line">Confidence: {ai.confidence}</span>}>
         <p className="font-display text-xl font-semibold">{stripped ? "Can't tell: no metadata is left in this file" : VERDICT[ai.verdict]}</p>
         {stripped && (
           <Alert kind="warn">
             Chat apps, screenshots and converters remove the labels that say how an image was made, so an AI image and a real photo look the same here.
             This result reads the file&apos;s labels only; the pixel check below looks at the picture itself.
           </Alert>
+        )}
+        {!stripped && (
+          <p className="mt-1 text-sm text-muted">This reads only the labels written into the file. The pixel check below looks at the picture itself, so the two can disagree.</p>
         )}
       </Section>
       {file && <PixelCheck key={`${file.name}-${file.size}-${file.lastModified}`} file={file} />}

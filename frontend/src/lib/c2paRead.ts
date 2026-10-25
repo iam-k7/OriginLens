@@ -62,10 +62,12 @@ export async function readCredentials(file: File): Promise<Credentials> {
         title: m?.title,
         issuer: m?.signature_info?.issuer,
         signedAt: m?.signature_info?.time,
-        sourceTypes: (m?.assertions ?? [])
+        // Every manifest in the file's history: an AI step is often one edit back (e.g. Google tools add a watermark manifest on top).
+        sourceTypes: [...new Set(Object.values(store.manifests ?? {})
+          .flatMap((mf) => mf.assertions ?? [])
           .filter((a) => a.label.startsWith("c2pa.actions"))
           .flatMap((a) => a.data?.actions ?? [])
-          .flatMap((a) => (a.digitalSourceType ? [a.digitalSourceType] : [])),
+          .flatMap((a) => (a.digitalSourceType ? [a.digitalSourceType] : [])))],
         validation: store.validation_state,
         issues: (store.validation_status ?? []).flatMap((s) => (s.code ? [s.code] : [])).slice(0, 20),
       };

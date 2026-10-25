@@ -38,7 +38,7 @@ const LIMITATIONS = [
   "Metadata can be stripped or forged. A missing label proves nothing either way.",
   "Camera EXIF can be copied onto generated images. Treat it as weak evidence.",
   "Screenshots, re-uploads and social platforms usually remove these signals.",
-  "Content Credentials are detected here but not verified. Signature checks need the server.",
+  "Content Credentials signatures are checked here, but the signer is not checked against a trusted-issuer list.",
 ];
 
 function sniff(b: Uint8Array): string {
