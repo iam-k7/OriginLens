@@ -7,7 +7,8 @@ import type * as Ort from "onnxruntime-web/wasm";
 import { resizeBilinear } from "./resample";
 
 const MODEL_URL = "/models/commfor-vit-s-384.onnx";
-export const MODEL_MB = 87;
+const MODEL_BYTES = 87_346_817;
+export const MODEL_MB = Math.round(MODEL_BYTES / 1e6);
 const MEAN = [0.485, 0.456, 0.406];
 const STD = [0.229, 0.224, 0.225];
 
@@ -16,18 +17,22 @@ let session: Promise<{ ort: typeof Ort; session: Ort.InferenceSession }> | null 
 async function download(onProgress: (fraction: number) => void): Promise<Uint8Array> {
   const res = await fetch(MODEL_URL);
   if (!res.ok || !res.body) throw new Error(`Could not download the model (HTTP ${res.status}).`);
-  const total = Number(res.headers.get("content-length")) || MODEL_MB * 1e6;
-  const out = new Uint8Array(total);
+  // Content-Length is the compressed size when the host gzips the file, so it can't size the buffer or the progress.
+  const chunks: Uint8Array[] = [];
   const reader = res.body.getReader();
   let got = 0;
   for (;;) {
     const { done, value } = await reader.read();
     if (done) break;
-    out.set(value, got);
+    chunks.push(value);
     got += value.length;
-    onProgress(Math.min(got / total, 1));
+    onProgress(Math.min(got / MODEL_BYTES, 0.99));
   }
-  return out.subarray(0, got);
+  const out = new Uint8Array(got);
+  let at = 0;
+  for (const c of chunks) { out.set(c, at); at += c.length; }
+  onProgress(1);
+  return out;
 }
 
 function load(onProgress: (fraction: number) => void) {
