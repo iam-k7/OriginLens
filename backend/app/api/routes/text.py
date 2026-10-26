@@ -40,7 +40,7 @@ class AnalyzeIn(TextIn):
 
 
 class RewriteIn(TextIn):
-    tone: Literal["neutral", "friendly", "formal", "concise", "academic"] = "neutral"
+    tone: Literal["neutral", "friendly", "formal", "concise", "academic", "humanize"] = "neutral"
 
 
 def get_llm(principal: Principal, db: Session, settings: Settings) -> LLMRouter:
@@ -84,11 +84,22 @@ async def analyze(body: AnalyzeIn, principal: Principal = Depends(quota("text"))
 async def rewrite(body: RewriteIn, principal: Principal = Depends(quota("llm")),
                   db: Session = Depends(get_db), settings: Settings = Depends(get_settings)):
     start = time.perf_counter()
+    budget = min(4000, len(body.text) // 2 + 400)
+    router_ = get_llm(principal, db, settings)
     try:
-        llm = await run_in_threadpool(
-            get_llm(principal, db, settings).complete,
-            [{"role": "system", "content": prompts.REWRITE_SYSTEM.format(tone=prompts.TONES[body.tone])},
-             {"role": "user", "content": prompts.wrap(body.text)}], 0.6, min(4000, len(body.text) // 2 + 400))
+        if body.tone == "humanize":
+            draft = await run_in_threadpool(
+                router_.complete, [{"role": "system", "content": prompts.HUMANIZE_TO_CHINESE},
+                                   {"role": "user", "content": prompts.wrap(body.text)}], 1.3, budget)
+            llm = await run_in_threadpool(
+                router_.complete, [{"role": "system", "content": prompts.HUMANIZE_BACK},
+                                   {"role": "user", "content": prompts.wrap(body.text)
+                                    + f"\n<draft>\n{draft.text.replace('</draft>', '')}\n</draft>"}], 0.9, budget)
+        else:
+            llm = await run_in_threadpool(
+                router_.complete,
+                [{"role": "system", "content": prompts.REWRITE_SYSTEM.format(tone=prompts.TONES[body.tone])},
+                 {"role": "user", "content": prompts.wrap(body.text)}], 0.6, budget)
     except AppError as exc:
         accounts.record_job(db, principal.user_id, "text.rewrite", "failed",
                             int((time.perf_counter() - start) * 1000), exc.code)

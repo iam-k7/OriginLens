@@ -6,7 +6,7 @@ import { api, ApiError } from "@/lib/api";
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- API payloads are rendered generically */
 const MAX = 20000;
-const TONES = ["neutral", "friendly", "formal", "concise", "academic"] as const;
+const TONES = ["neutral", "friendly", "formal", "concise", "academic", "humanize"] as const;
 type Mode = "analyze" | "rewrite";
 
 export default function TextPage() {

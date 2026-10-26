@@ -91,3 +91,22 @@ def test_pricing_uses_fallback_rate(client):
     pro = next(p for p in body["plans"] if p["id"] == "pro")
     assert pro["price"]["USD"] == 6 and pro["price"]["INR"] == 504
     assert body["currency"]["rate_source"] == "fallback"
+
+
+def test_rewrite_humanize_uses_two_steps_and_keeps_the_original(client, monkeypatch):
+    import json
+    from app.api.routes import text as text_route
+    sent = []
+
+    def handler(req):
+        body = json.loads(req.content)
+        sent.append(body)
+        out = "草稿" if len(sent) == 1 else "A natural version."
+        return httpx.Response(200, json={"choices": [{"message": {"content": out}}]})
+
+    monkeypatch.setattr(text_route, "build_providers", lambda s: [_provider("nvidia", handler)])
+    r = client.post("/api/text/rewrite", json={"text": "Original sentence here.", "tone": "humanize"})
+    assert r.status_code == 200 and r.json()["text"] == "A natural version."
+    assert len(sent) == 2
+    step2 = sent[1]["messages"][-1]["content"]
+    assert "Original sentence here." in step2 and "<draft>\n草稿\n</draft>" in step2
