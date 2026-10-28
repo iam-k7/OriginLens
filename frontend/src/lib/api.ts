@@ -1,6 +1,7 @@
 import { supabase } from "./supabase";
 
-export const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/$/, "");
+// The API is this site's own /api routes; NEXT_PUBLIC_API_URL only overrides that for a separate host.
+export const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "").replace(/\/$/, "");
 
 export class ApiError extends Error {
   constructor(public status: number, public code: string, message: string, public requestId?: string) {
@@ -22,8 +23,7 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
     res = await fetch(`${API_URL}/api${path}`, { ...init, headers });
   } catch {
     throw new ApiError(0, "network_error", "Could not reach the OriginLens API. Check your connection and try again.");
-  }
-  const body = await res.json().catch(() => null);
+  }  const body = await res.json().catch(() => null);
   if (!res.ok) {
     const e = body?.error;
     throw new ApiError(res.status, e?.code ?? "http_error", e?.message ?? `Request failed (${res.status})`, e?.request_id);

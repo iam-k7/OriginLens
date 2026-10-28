@@ -96,6 +96,8 @@ export default function AnalyzerPage() {
     }
     if (f.size > MAX_MB * 1024 * 1024) { setError(new ApiError(0, "invalid_file", `Images must be at most ${MAX_MB} MB.`)); return; }
     reset();
+    // Logged-out visitors get one image check a day; the server counts it.
+    try { await api("/usage/claim", { method: "POST", body: JSON.stringify({ tool: "image" }) }); } catch (e) { setError(e); return; }
     setFile(f); setPreview(URL.createObjectURL(f));
     setJob({ name: f.name, size: f.size });
     load(f);

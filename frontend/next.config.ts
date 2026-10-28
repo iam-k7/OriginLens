@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-const api = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const api = process.env.NEXT_PUBLIC_API_URL ?? ""; // empty: the API is this site's own /api routes
 const supabase = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 
 const csp = [

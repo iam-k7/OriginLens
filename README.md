@@ -1,103 +1,58 @@
 # OriginLens
 
-**Understand where your content comes from.** Privacy-first image metadata inspection, C2PA provenance
-verification, lossless metadata removal, and explainable text intelligence.
+**Understand where your content comes from.** Privacy-first image metadata inspection, Content Credentials
+(C2PA) verification, lossless metadata removal, an experimental AI-image pixel check, and explainable
+text intelligence with AI rewriting.
 
-| Part | Stack | Deploys to |
+| Part | Stack | Runs on |
 |---|---|---|
-| `frontend/` | Next.js 16 (App Router) + Tailwind v4 + Supabase JS | Vercel |
-| `backend/` | FastAPI, SQLAlchemy 2 + Alembic, Pillow, c2pa-python, ExifTool, Redis | Docker (Render / Fly / Railway) |
-| Database / Auth | Supabase Postgres + Supabase Auth | Supabase |
+| `frontend/` | Next.js 16 (App Router) + Tailwind v4 + Supabase JS, with server routes under `src/app/api` | Vercel |
+| `supabase/` | Postgres migrations: profiles, welcome email (Resend via `pg_net`), usage limits | Supabase |
 
-## What works, and what is intentionally not faked
+There is no separate API server. Image checks run in the visitor's browser; the few things that need a
+server (AI writing, fetching an image by URL, usage limits) are Next.js route handlers on Vercel.
 
-| Feature | Status |
+## Where each feature runs
+
+| Feature | Runs in |
 |---|---|
-| Upload (drag-drop, browse, paste), signature + size + decompression-bomb validation | ✅ |
-| Metadata: EXIF (IFD0/Exif/GPS), XMP, IPTC, PNG text, comments, ICC, color, optional ExifTool deep read | ✅ |
-| C2PA verification (`c2pa-python` Reader, as in the referenced article) | ✅ (not yet tested against a real signed sample) |
-| Privacy Clean: lossless removal of GPS / EXIF / XMP / IPTC / C2PA / comments for JPEG, PNG, WEBP | ✅ pixels verified byte-identical in tests |
-| Image URL analysis with SSRF protection (DNS pinning, private-IP block, redirect re-check, ports 80/443) | ✅ |
-| AI image signals | ✅ evidence only. **No probability score**: no validated detector is integrated |
-| Text analysis (Standard Scan): local stylometric signals, sentence-level flags | ✅ descriptive only, **no AI score** |
-| Deep Scan + Rewrite Naturally via OpenRouter → Groq fallback (timeouts, retries, circuit breaker, usage tracking) | ✅ needs API keys |
-| Supabase Auth (signup/login/logout; refresh rotation handled by Supabase) | ✅ needs a Supabase project |
-| Quotas per plan (anonymous / free / pro), Redis rate limiting, enforced server-side | ✅ |
-| Pricing Free $0 / Pro $6 with USD/INR (live rate, configurable fallback) | ✅ display only |
-| Pro checkout / payments | ❌ not built: no payment provider chosen. Set `subscriptions.plan='pro'` manually |
-| Background jobs (Celery) | ❌ not needed yet: all work is synchronous and bounded |
-| GIF Privacy Clean, SVG | GIF is analyze-only; SVG is rejected for safety |
+| Metadata (EXIF / XMP / IPTC / GPS), Content Credentials (official C2PA SDK in WebAssembly) | Browser |
+| Privacy Clean (lossless removal of EXIF / XMP / IPTC / C2PA / comments for JPEG, PNG, WEBP) | Browser |
+| AI labels in the file (C2PA source type, generator fields, diffusion parameters) | Browser |
+| Pixel check (Community Forensics ViT-S/384, ONNX, 87 MB, downloaded on request) | Browser |
+| Text Standard Scan (stylistic signals, no AI score) | Browser |
+| Rewrite (5 tones + Humanize) and Deep Scan, via NVIDIA (Nemotron 3 Ultra) | `/api/text/rewrite`, `/api/text/deep-scan` |
+| Analyze an image URL (SSRF-safe: public addresses only, ports 80/443, redirects re-checked) | `/api/images/analyze-url` |
+| Free-use limits (logged out: 1 image + 1 text check per day; logged in: 10 AI calls per day) | `/api/usage/claim` + Supabase `consume_quota` |
+| Sign-up (email code, Google, GitHub), profiles, welcome email | Supabase |
 
 ## Local development
 
-Requirements: Python 3.10+, [uv](https://docs.astral.sh/uv/), Node 20+, and either Docker or a local Redis + Postgres.
-
-```bash
-cp .env.example .env
-```
-
-Full stack in Docker (Postgres, Redis, API on :8000, web on :3000):
-
-```bash
-docker compose up --build
-```
-
-Or run the pieces yourself:
-
-```bash
-cd backend && uv sync && uv run alembic upgrade head && uv run uvicorn app.main:app --reload
-```
+Requirements: Node 20+.
 
 ```bash
 cd frontend && npm install && npm run dev
 ```
 
-The frontend reads `frontend/.env.local` (see `frontend/.env.example`).
+The site reads `frontend/.env.local` (see `frontend/.env.example` and the root `.env.example`).
 
 ## Tests and checks
 
 ```bash
-cd backend && uv run pytest && uv run ruff check app tests
-```
-
-```bash
-cd frontend && npx tsc --noEmit && npm run lint && npm run build
+cd frontend && node --test src/lib/*.test.mts src/lib/server/*.test.mts && npx tsc --noEmit && npm run lint && npm run build
 ```
 
 ## Deployment
 
-1. **Supabase**: create a project. Copy the Postgres connection string into `DATABASE_URL`
-   (use `postgresql+psycopg://…`). Copy the project URL into `SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_URL`, and the anon key into `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
-   Under Auth → URL configuration, add your Vercel domain.
-2. **API + Redis** on Render: New → Blueprint → select this repo (`render.yaml`). Paste `DATABASE_URL`
-   (Supabase pooler string, `postgresql+psycopg://…`) and the LLM keys when prompted. Migrations run on
-   container start. Then set `NEXT_PUBLIC_API_URL` on Vercel to the Render URL and redeploy the frontend.
-   Edit `CORS_ORIGINS` in `render.yaml` if your frontend domain differs. Any Docker host works too.
-3. **Frontend** on Vercel: root directory `frontend`; set the three `NEXT_PUBLIC_*` variables.
-
-The API is not on Vercel because it needs ExifTool, persistent Redis connections, and uploads larger than
-Vercel's ~4.5 MB function body limit.
-
-## API
-
-Interactive docs are at `/docs` when `ENV` is not `production`. All routes are prefixed with `/api` and rate limited per IP.
-Errors use one shape: `{"error": {"code", "message", "details", "request_id"}}`.
-
-| Method | Path | Quota | Body |
-|---|---|---|---|
-| POST | `/images/analyze` | image | multipart `file` |
-| POST | `/images/analyze-url` | image | `{"url"}` |
-| POST | `/images/ai-signals` | image | multipart `file` |
-| POST | `/images/clean` | image | multipart `file`, `categories` = comma list of `gps,exif,xmp,iptc,c2pa,comments` |
-| POST | `/text/analyze` | text (+llm for deep) | `{"text", "mode": "standard"\|"deep"}` |
-| POST | `/text/rewrite` | llm | `{"text", "tone"}` |
-| GET | `/pricing`, `/usage`, `/health` | — | |
-| GET | `/me` | — | requires `Authorization: Bearer <supabase access token>` |
+1. **Supabase**: apply `supabase/migrations` in order. Under Auth → URL configuration set the Site URL to
+   your domain and add `https://<domain>/**` to Redirect URLs. Store the Resend key in Vault as
+   `resend_api_key` (see `20261022181209_welcome_email.sql`).
+2. **Vercel**: root directory `frontend`. Set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
+   `SUPABASE_SECRET_KEY` (server only) and `NVIDIA_API_KEY` (server only).
 
 ## Privacy and security notes
 
-- Uploaded images and text are processed in memory and never written to disk or the database.
-  ExifTool reads from stdin. The DB stores only job kind, status, duration and provider token counts.
-- Logs are JSON with request IDs. They contain paths and status codes only: no bodies, query strings or tokens.
-- The API uses bearer tokens, not cookies, so CSRF does not apply. The Supabase session lives in browser storage.
+- Images never leave the visitor's device, except when they ask us to fetch one by URL.
+- Text sent to Rewrite or Deep Scan goes to NVIDIA's API to produce the result and is not stored by us.
+- Usage limits are counted in a schema the public Supabase API does not expose; only the server's secret key can update them.
 - Removing metadata never changes an image's true origin, and the UI says so.

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Alert, ErrorAlert, KV, Limitations, Section, Spinner, Tabs } from "@/components/ui";
 import { api, ApiError } from "@/lib/api";
+import { analyzeText } from "@/lib/textAnalysis";
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- API payloads are rendered generically */
 const MAX = 20000;
@@ -33,7 +34,11 @@ export default function TextPage() {
     setBusy(true); setError(null);
     try {
       if (mode === "analyze") {
-        setAnalysis(await api("/text/analyze", { method: "POST", body: JSON.stringify({ text, mode: deep ? "deep" : "standard" }) }));
+        // The counting runs here in the browser; Deep Scan is an AI call, counted by its own route.
+        const deepScan = deep
+          ? await api("/text/deep-scan", { method: "POST", body: JSON.stringify({ text }) })
+          : await api("/usage/claim", { method: "POST", body: JSON.stringify({ tool: "text" }) }).then(() => undefined);
+        setAnalysis({ ...analyzeText(text), mode: deep ? "deep" : "standard", deep_scan: deepScan });
       } else {
         setRewrite(await api("/text/rewrite", { method: "POST", body: JSON.stringify({ text, tone }) }));
       }

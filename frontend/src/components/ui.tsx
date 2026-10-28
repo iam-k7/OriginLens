@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { ApiError } from "@/lib/api";
 
@@ -26,6 +27,17 @@ export function Alert({ kind = "error", children }: { kind?: "error" | "info" | 
 export function ErrorAlert({ error }: { error: unknown }) {
   if (!error) return null;
   const e = error instanceof ApiError ? error : null;
+  if (e?.code === "login_required") {
+    return (
+      <Alert kind="warn">
+        {e.message}
+        <span className="mt-3 flex gap-2">
+          <Link href="/login" className="btn-ghost py-1.5 text-[13px]">Log in</Link>
+          <Link href="/signup" className="btn-primary py-1.5 text-[13px]">Sign up free</Link>
+        </span>
+      </Alert>
+    );
+  }
   return (
     <Alert>
       {e ? e.message : "Something went wrong."}
