@@ -16,6 +16,177 @@ const A = ({ href, children }: { href: string; children: ReactNode }) => (
 
 export const POSTS: Post[] = [
   {
+    slug: "ai-text-humanizer-and-writing-analyzer",
+    title: "AI Text Humanizer and Writing Analyzer: How It Works",
+    description:
+      "How the OriginLens text tool reads your writing sentence by sentence, what each signal means, and how to humanize AI-sounding text so it reads naturally.",
+    date: "2026-10-28",
+    keywords: [
+      "AI text humanizer",
+      "humanize AI text",
+      "make AI text sound human",
+      "writing analyzer",
+      "rewrite AI text naturally",
+      "AI writing style checker",
+    ],
+    body: (
+      <>
+        <p>
+          You asked an AI assistant for a draft, and it came back stiff: every sentence the same length, a
+          &quot;Furthermore&quot; in every paragraph, and phrases nobody says out loud. Or you wrote it yourself and it
+          still sounds like a template. The <A href="/text">OriginLens Text and Blog Intelligence</A> tool shows you
+          exactly why a piece of writing reads that way, and rewrites it so it sounds like a person.
+        </p>
+        <p>This guide explains what the tool measures, how the rewrite and humanizer work, and how to get the best results.</p>
+
+        <h2>What the tool does</h2>
+        <p>It has two parts, shown as two tabs:</p>
+        <ul>
+          <li><strong>Analyze</strong> measures the style of your text and flags sentences worth a second look.</li>
+          <li><strong>Rewrite Naturally</strong> rewrites the text in a tone you choose, including a <strong>Humanize</strong> option for text that sounds machine-written.</li>
+        </ul>
+        <p>
+          One thing it does <strong>not</strong> do is tell you whether a human or an AI wrote the text. No tool can do
+          that reliably. Style patterns are evidence about <em>how</em> something is written, not proof of
+          <em>who</em> wrote it, and many careful human writers use the same patterns. So you will never see an
+          &quot;AI score&quot; here.
+        </p>
+
+        <h2>How Analyze works</h2>
+        <p>
+          The <strong>Standard Scan</strong> runs entirely in your browser. Your text is not sent anywhere. It splits the
+          text into sentences and measures four style signals:
+        </p>
+        <ul>
+          <li>
+            <strong>Sentence length variation.</strong> People naturally mix short sentences with long ones. When almost
+            every sentence is the same length, writing feels flat. This is common in templated and machine-generated
+            text, and in some formal writing.
+          </li>
+          <li>
+            <strong>Vocabulary diversity.</strong> The share of words that are unique. Very repetitive vocabulary makes text
+            feel padded. This number naturally drops as text gets longer, so the tool only flags it on longer pieces.
+          </li>
+          <li>
+            <strong>Stock phrases.</strong> Phrases that are over-used in assistant-style writing, such as &quot;delve&quot;,
+            &quot;it is important to note&quot;, &quot;in today&apos;s fast-paced world&quot;, &quot;furthermore&quot; and
+            &quot;a testament to&quot;. One is fine. Several in a short text is a pattern readers notice.
+          </li>
+          <li>
+            <strong>Repeated sentence openers.</strong> Starting three or more sentences with the same word (&quot;This…&quot;,
+            &quot;Additionally…&quot;) breaks the flow.
+          </li>
+        </ul>
+        <p>
+          You also get a reading-ease score, word and sentence counts and reading time. Each sentence is listed with
+          flags like <em>very long</em>, <em>stock phrase</em> or <em>near-average length</em>, so you know exactly
+          where to edit.
+        </p>
+        <p>
+          <strong>Deep Scan</strong> adds a short style review written by an AI model: observations about repetition,
+          generic phrasing, hedging and voice, plus notes on specific sentences and concrete suggestions. It is an
+          opinion about style, and the tool labels it that way.
+        </p>
+
+        <h2>How Rewrite Naturally works</h2>
+        <p>Pick a tone and press Rewrite. The AI model rewrites your text for clarity and flow while keeping your facts, names, numbers and meaning, without adding new claims. The tones are:</p>
+        <ul>
+          <li><strong>Neutral</strong>: clear and plain.</li>
+          <li><strong>Friendly</strong>: warm and conversational.</li>
+          <li><strong>Formal</strong>: professional.</li>
+          <li><strong>Concise</strong>: shorter and more direct.</li>
+          <li><strong>Academic</strong>: precise.</li>
+          <li><strong>Humanize</strong>: for text that sounds machine-written (explained below).</li>
+        </ul>
+
+        <h2>How the Humanize option works</h2>
+        <p>
+          Most &quot;AI humanizers&quot; just swap words for synonyms, which often makes text worse. OriginLens uses a
+          two-step method based on the open-source humanize-text project:
+        </p>
+        <ol>
+          <li>
+            The AI model rewrites your text <strong>into Chinese</strong>, the way a person would naturally say it,
+            with more varied rhythm and fewer stock phrases. Moving into a very different language forces the sentence
+            structure to be rebuilt, not just reworded.
+          </li>
+          <li>
+            The model then rewrites that draft <strong>back into your original language</strong>. In this step it also
+            sees your original text and is told to keep its meaning exactly, with no added claims or exaggeration.
+          </li>
+        </ol>
+        <p>
+          That second check matters. When we tested the original humanizer method, it sometimes added ideas that were
+          not in the source, like turning &quot;verification tools are needed&quot; into &quot;nobody can trust
+          anything&quot;. Showing the model the original stops that drift.
+        </p>
+        <p>Here is a real example:</p>
+        <blockquote className="border-l-4 border-brand-300 pl-4">
+          <p><strong>Before:</strong> &quot;Artificial intelligence has fundamentally transformed the way content is created and consumed. It is important to note that AI-generated images are now widespread, making it increasingly difficult for individuals to distinguish authentic photographs from synthetic ones. Furthermore, this trend underscores the critical need for robust verification tools.&quot;</p>
+          <p><strong>After Humanize:</strong> &quot;Artificial intelligence has fundamentally reshaped how content is made and consumed. AI-generated images are now everywhere, blurring the line between real photographs and synthetic ones. That shift makes reliable verification tools more essential than ever.&quot;</p>
+        </blockquote>
+        <p>
+          Same facts, fewer filler phrases (&quot;it is important to note&quot;, &quot;furthermore&quot;), more natural
+          rhythm. Humanize takes about 15 to 25 seconds, because it makes two passes.
+        </p>
+
+        <h2>Step by step: improve a piece of writing</h2>
+        <ol>
+          <li>Open <A href="/text">Text and Blog Intelligence</A> and paste your text, or upload a .txt file (up to 20,000 characters).</li>
+          <li>On the <strong>Analyze</strong> tab, run a Standard Scan. Note the sentences flagged as <em>stock phrase</em> or <em>very long</em>, and whether sentence lengths are too uniform.</li>
+          <li>For a second opinion on voice and tone, tick <strong>Deep Scan</strong> and run it again.</li>
+          <li>Switch to <strong>Rewrite Naturally</strong>, choose a tone (or <strong>Humanize</strong> for AI-sounding drafts), and press Rewrite.</li>
+          <li>Read the result carefully, check every fact, name and number, and copy it. Then run Analyze on the new version to compare.</li>
+        </ol>
+        <p>
+          The rewrite is a strong first draft, not a finished one. The best results come from keeping what works,
+          editing what doesn&apos;t, and adding details only you know. Specific examples and your own opinions are what
+          make writing sound like you.
+        </p>
+
+        <h2>Tips for text that sounds human</h2>
+        <ul>
+          <li>Mix sentence lengths. Follow a long explanation with a short point.</li>
+          <li>Cut transition words that do nothing. Most &quot;furthermore&quot; and &quot;moreover&quot; can simply go.</li>
+          <li>Replace general claims with specifics: a number, a name, an example.</li>
+          <li>Say it the way you would explain it to a colleague, then tidy it up.</li>
+          <li>Read it out loud. Anywhere you stumble needs another pass.</li>
+        </ul>
+
+        <h2>Privacy and limits</h2>
+        <ul>
+          <li>The Standard Scan runs in your browser and nothing is sent anywhere.</li>
+          <li>Rewrite, Humanize and Deep Scan send your text to our AI provider (NVIDIA) to produce the result. We do not store your text.</li>
+          <li>Without an account you get one free text check per day. With a free account, analysis is unlimited and you get 10 AI rewrites or Deep Scans per day.</li>
+        </ul>
+
+        <h2>Use it honestly</h2>
+        <p>
+          Humanizing makes writing easier to read. It does not change who wrote it. If your school, employer or
+          publisher requires you to disclose AI help, a rewrite doesn&apos;t change that. We also make no promise about
+          how any AI detector will score the result; those tools disagree with each other and are often wrong.
+        </p>
+
+        <h2>Frequently asked questions</h2>
+        <h3>Can this tool tell if text was written by AI?</h3>
+        <p>
+          No, and we don&apos;t pretend to. It measures style patterns that are common in AI-assisted writing but also
+          appear in human writing. Use them to edit, not to judge who wrote something.
+        </p>
+        <h3>Will Humanize change my meaning?</h3>
+        <p>
+          It is designed not to: the second step checks against your original and is told not to add claims. Still,
+          always read the result and check facts, names and numbers before you use it.
+        </p>
+        <h3>Is it free?</h3>
+        <p>
+          Yes. You can try one text check a day without an account. A free account gives you unlimited analysis and 10
+          AI rewrites per day. <A href="/signup">Sign up free</A>.
+        </p>
+      </>
+    ),
+  },
+  {
     slug: "how-to-check-if-an-image-is-ai-generated",
     title: "How to Check If an Image Is AI-Generated: An Honest Guide",
     description:
