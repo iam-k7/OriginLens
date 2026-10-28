@@ -16,6 +16,135 @@ const A = ({ href, children }: { href: string; children: ReactNode }) => (
 
 export const POSTS: Post[] = [
   {
+    slug: "check-chatgpt-gemini-images",
+    title: "Was It Made by ChatGPT or Gemini? How to Check an Image",
+    description:
+      "How to check if an image came from ChatGPT, Gemini or other Google AI: Content Credentials, the SynthID watermark, and the free tools that read them.",
+    date: "2026-10-28",
+    keywords: [
+      "check if image is ai generated gemini",
+      "check if image is ai generated chatgpt",
+      "check if image is ai generated openai",
+      "ai image checker google",
+      "synthid detector",
+      "synthid checker",
+    ],
+    body: (
+      <>
+        <p>
+          ChatGPT and Google&apos;s Gemini are two of the most-used image generators, and both now label what they make.
+          That means you can often check an image&apos;s origin for certain, as long as you use the right tool and the
+          label hasn&apos;t been stripped. Here is how each label works and how to check it.
+        </p>
+
+        <h2>Two kinds of label</h2>
+        <ul>
+          <li>
+            <strong>Content Credentials (C2PA):</strong> a signed record inside the file that says which tool made it
+            and that AI was used. Any C2PA reader can check it, but screenshots, re-saves and many apps remove it.
+          </li>
+          <li>
+            <strong>SynthID:</strong> an invisible watermark woven into the pixels, created by Google DeepMind. It is
+            designed to survive common changes like compression and screenshots, but only the maker&apos;s own tools can
+            check for it.
+          </li>
+        </ul>
+
+        <h2>Images from ChatGPT (OpenAI)</h2>
+        <p>
+          OpenAI has added Content Credentials to images from its image tools for some time. In May 2026 it announced
+          it would also add the SynthID watermark, and it launched a public checker at <strong>openai.com/verify</strong>
+          {" "}that looks for both signals in images from ChatGPT, the OpenAI API and Codex.
+        </p>
+        <ul>
+          <li><strong>To check the Content Credentials:</strong> add the image to the <A href="/analyzer">OriginLens Image Analyzer</A>. If the record is there, the File labels card says the file declares AI generation, and the Provenance tab shows OpenAI as the tool.</li>
+          <li><strong>To check the watermark:</strong> use OpenAI&apos;s own verifier. Watermarks can&apos;t be read by other tools.</li>
+        </ul>
+
+        <h2>Images from Gemini and other Google AI</h2>
+        <p>
+          Images made or edited with Google&apos;s AI models carry a SynthID watermark. Google has also started adding
+          Content Credentials to images from its newer image models (the Nano Banana family) in the Gemini app and some
+          of its other products.
+        </p>
+        <ul>
+          <li>
+            <strong>To check the watermark:</strong> open the Gemini app or gemini.google.com, attach the image, and ask
+            &quot;Was this created or edited with Google AI?&quot;. If Gemini finds SynthID, all or part of the image was
+            made or edited with Google AI. Use one image at a time; if you use a screenshot, crop it tightly.
+          </li>
+          <li>
+            <strong>To check the Content Credentials:</strong> add the image to the <A href="/analyzer">OriginLens Image
+            Analyzer</A>. Google often records the AI step in an earlier layer of the record (for example, &quot;created
+            with Google Generative AI&quot;, then a watermark added on top). OriginLens reads every layer, so it still
+            finds the AI label.
+          </li>
+        </ul>
+        <p>
+          A real example: a portrait edited with Google&apos;s AI that we tested had two signed layers from Google. The
+          latest said only &quot;added visible watermark&quot;; the earlier one recorded the AI step as{" "}
+          <code>trainedAlgorithmicMedia</code>, the industry term for AI-generated media. A checker that reads only the
+          latest layer would have missed it.
+        </p>
+
+        <h2>Which check to use</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="border-b border-line text-ink"><th className="py-2 pr-4">Image from</th><th className="py-2 pr-4">Content Credentials</th><th className="py-2">Watermark</th></tr>
+            </thead>
+            <tbody>
+              <tr className="border-b border-line"><td className="py-2 pr-4">ChatGPT / OpenAI</td><td className="py-2 pr-4">OriginLens or any C2PA reader</td><td className="py-2">openai.com/verify</td></tr>
+              <tr className="border-b border-line"><td className="py-2 pr-4">Gemini / Google AI</td><td className="py-2 pr-4">OriginLens or any C2PA reader</td><td className="py-2">Gemini app (SynthID)</td></tr>
+              <tr><td className="py-2 pr-4">Unknown source</td><td className="py-2 pr-4">Start with OriginLens</td><td className="py-2">Try both makers&apos; checkers</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>What a &quot;no&quot; really means</h2>
+        <p>
+          These checks are reliable when they find something. When they find nothing, they prove much less:
+        </p>
+        <ul>
+          <li>OpenAI&apos;s checker can only tell you about OpenAI&apos;s images, and Gemini only about Google&apos;s.</li>
+          <li>Images from other generators (such as Midjourney or open-source Stable Diffusion models) usually carry neither label.</li>
+          <li>Screenshots and social apps often strip Content Credentials. Watermarks hold up better, but heavy editing can still weaken them.</li>
+        </ul>
+        <p>
+          So &quot;no label found&quot; means &quot;unknown&quot;, not &quot;real&quot;. When that happens, try a reverse
+          image search to find the original, and read our guide on{" "}
+          <A href="/blog/how-to-check-if-an-image-is-ai-generated">how to tell if an image is AI-generated</A>.
+        </p>
+
+        <h2>Step by step</h2>
+        <ol>
+          <li>Get the original file if you can, not a screenshot.</li>
+          <li>Add it to the <A href="/analyzer">OriginLens Image Analyzer</A> and read the File labels card and the Provenance tab.</li>
+          <li>If you suspect ChatGPT, check it at openai.com/verify. If you suspect Gemini or Google AI, ask the Gemini app.</li>
+          <li>If nothing is found, run a reverse image search and treat the result as unknown.</li>
+        </ol>
+
+        <h2>Frequently asked questions</h2>
+        <h3>Can Gemini tell if an image was made by ChatGPT?</h3>
+        <p>
+          Not reliably. Gemini&apos;s watermark check only recognises Google&apos;s SynthID. Use a Content Credentials
+          reader such as OriginLens, or OpenAI&apos;s own checker.
+        </p>
+        <h3>Does a screenshot remove these labels?</h3>
+        <p>
+          A screenshot removes Content Credentials, because it creates a new file. A SynthID watermark is designed to
+          survive screenshots, so the maker&apos;s checker may still find it.
+        </p>
+        <h3>Is there one tool that checks everything?</h3>
+        <p>
+          Not yet. Content Credentials are an open standard any tool can read, but each company&apos;s watermark can
+          only be checked with its own tool. See our{" "}
+          <A href="/blog/free-ai-image-checkers-compared">comparison of free AI image checkers</A>.
+        </p>
+      </>
+    ),
+  },
+  {
     slug: "linkedin-content-credentials-label",
     title: "LinkedIn's \"CR\" Content Credentials Label, Explained",
     description:
