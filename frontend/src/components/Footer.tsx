@@ -23,7 +23,7 @@ export function Footer() {
         </div>
         {COLS.map((c) => (
           <div key={c.title}>
-            <h2 className="text-xs text-dim">{c.title}</h2>
+            <p className="text-xs text-dim">{c.title}</p>
             <ul className="mt-3 space-y-2 text-sm">
               {c.links.map(([href, label]) => (
                 <li key={href}><Link className="text-milk/90 hover:text-milk" href={href}>{label}</Link></li>

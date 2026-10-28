@@ -1,6 +1,29 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Faq } from "@/components/Faq";
 import { LogoMark } from "@/components/Logo";
+import { SITE_URL } from "@/lib/site";
+
+// Set here, not in the root layout, so other pages don't inherit the home page's canonical address.
+export const metadata: Metadata = { alternates: { canonical: "/" }, openGraph: { url: "/" } };
+
+const JSON_LD = {
+  "@context": "https://schema.org",
+  "@graph": [
+    { "@type": "Organization", "@id": `${SITE_URL}/#org`, name: "OriginLens", url: SITE_URL, logo: `${SITE_URL}/logo-email.png` },
+    { "@type": "WebSite", "@id": `${SITE_URL}/#site`, name: "OriginLens", url: SITE_URL, publisher: { "@id": `${SITE_URL}/#org` } },
+    {
+      "@type": "WebApplication",
+      name: "OriginLens Image Analyzer",
+      url: `${SITE_URL}/analyzer`,
+      applicationCategory: "UtilitiesApplication",
+      operatingSystem: "Any (runs in the browser)",
+      description: "Check if an image is AI-generated, verify Content Credentials (C2PA), and view or remove hidden photo metadata.",
+      offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+      publisher: { "@id": `${SITE_URL}/#org` },
+    },
+  ],
+};
 
 const SOFT = "text-[#857e77]"; // second headline tone; 3.3:1 on stone, used only at large sizes
 
@@ -32,6 +55,7 @@ const ROWS = [
 export default function Home() {
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD).replace(/</g, "\\u003c") }} />
       {/* Hero panel */}
       <section className="panel relative flex flex-col overflow-hidden lg:min-h-[calc(100svh-1.5rem)]">
         <div className="relative mx-auto max-w-5xl px-4 pt-28 text-center sm:pt-32 lg:pt-36">
@@ -43,7 +67,7 @@ export default function Home() {
             </span>
           </p>
           <h1 className="mt-6 font-display text-[2.7rem] font-normal leading-[0.98] tracking-[-0.055em] text-ink sm:text-7xl lg:text-[5.6rem]">
-            Understand where
+            Understand where{" "}
             <br />
             <span className={SOFT}>your content</span> comes from
           </h1>
@@ -74,7 +98,8 @@ export default function Home() {
       {/* Why */}
       <section className="mx-auto max-w-6xl px-4 py-24 text-center text-milk sm:px-6 sm:py-32">
         <span className="pill-label"><span className="text-brand-500">✱</span> Why OriginLens</span>
-        <h2 className="mx-auto mt-8 max-w-4xl font-display text-3xl font-normal leading-[1.15] tracking-[-0.04em] text-dim sm:text-5xl lg:text-[3.3rem]">
+        {/* A statement, not a section title, so it is a paragraph; the icon tiles inside it are decorative. */}
+        <p className="mx-auto mt-8 max-w-4xl font-display text-3xl font-normal leading-[1.15] tracking-[-0.04em] text-dim sm:text-5xl lg:text-[3.3rem]">
           OriginLens{" "}
           <span className="inline-flex translate-y-1 -space-x-3 align-middle" aria-hidden="true">
             {["bg-ink-2", "bg-[#2b231d]", "bg-[#3a2f27]"].map((bg, i) => (
@@ -85,7 +110,7 @@ export default function Home() {
           </span>{" "}
           <span className="text-milk">shows what a file really carries</span> — camera, location, edits and Content Credentials —{" "}
           <span className="text-milk">and removes</span> what you don&apos;t want to share.
-        </h2>
+        </p>
         <dl className="mt-20 grid grid-cols-2 gap-y-10 lg:grid-cols-4 lg:divide-x lg:divide-milk/10">
           {STATS.map(([v, l]) => (
             <div key={l} className="px-4">

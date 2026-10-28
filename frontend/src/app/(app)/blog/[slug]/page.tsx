@@ -22,7 +22,8 @@ export async function generateMetadata({ params }: PageProps<"/blog/[slug]">): P
     description: post.description,
     keywords: post.keywords,
     alternates: { canonical: `/blog/${post.slug}` },
-    openGraph: { type: "article", title: post.title, description: post.description, publishedTime: post.date, url: `/blog/${post.slug}` },
+    openGraph: { type: "article", title: post.title, description: post.description, publishedTime: post.date, url: `/blog/${post.slug}`,
+      images: "/opengraph-image" }, // a page-level openGraph replaces the inherited one, image included
   };
 }
 
