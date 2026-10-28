@@ -16,6 +16,129 @@ const A = ({ href, children }: { href: string; children: ReactNode }) => (
 
 export const POSTS: Post[] = [
   {
+    slug: "remove-metadata-and-gps-from-photos",
+    title: "How to Remove Metadata and GPS Location From Photos",
+    description:
+      "Remove GPS location and hidden metadata from photos online for free, or on iPhone and Android, before you share them. Step-by-step, without losing quality.",
+    date: "2026-10-28",
+    keywords: [
+      "remove metadata from photo online free",
+      "remove metadata from photo",
+      "remove exif data from image",
+      "remove gps from photo",
+      "remove location from photo",
+      "remove metadata from photo iphone",
+      "remove metadata from photo android",
+    ],
+    body: (
+      <>
+        <p>
+          Most photos carry hidden details: the exact GPS location where they were taken, the date and time, your phone
+          or camera model, and sometimes the editing apps you used or even your name. Share the original file and anyone
+          who downloads it can read all of it. Here is how to remove that information, online or on your phone.
+        </p>
+
+        <h2>What hidden data is in a photo?</h2>
+        <ul>
+          <li><strong>EXIF:</strong> camera and phone details, lens and exposure settings, date and time, and usually the <strong>GPS location</strong>.</li>
+          <li><strong>XMP and IPTC:</strong> editing history, captions, keywords, author and copyright.</li>
+          <li><strong>Content Credentials (C2PA):</strong> a signed record of how the image was made or edited, sometimes with your name.</li>
+          <li><strong>Comments and text fields:</strong> notes added by apps, and for AI images, sometimes the full prompt.</li>
+        </ul>
+        <p>
+          The GPS location is the one to worry about most. A photo taken at home can reveal your address to the
+          nearest few metres.
+        </p>
+
+        <h2>First, check what&apos;s in your photo</h2>
+        <p>
+          Before removing anything, see what&apos;s there. Add the photo to the{" "}
+          <A href="/analyzer">OriginLens Image Analyzer</A>. The Overview tab shows the camera, software, date and a map
+          link if there is a location; the Metadata tab lists every field and flags sensitive ones. It runs in your
+          browser, so the photo isn&apos;t uploaded.
+        </p>
+
+        <h2>Remove metadata online, for free</h2>
+        <p>The quickest way on any computer or phone browser, without installing anything:</p>
+        <ol>
+          <li>Open the <A href="/analyzer">OriginLens Image Analyzer</A> and add your photo (JPEG, PNG or WEBP).</li>
+          <li>In the <strong>Privacy Clean</strong> panel, choose what to remove: EXIF (including GPS), XMP, IPTC, Content Credentials and comments. Everything the file contains is selected by default.</li>
+          <li>Click <strong>Clean image</strong>, then download the cleaned copy. It is saved with &quot;-clean&quot; in the file name.</li>
+          <li>To be sure, add the cleaned file to the analyzer again: it should show no GPS and no metadata blocks.</li>
+        </ol>
+        <p>
+          Privacy Clean cuts the metadata out of the file without re-encoding the picture, so the image quality and
+          colours don&apos;t change. Your original file stays as it was.
+        </p>
+
+        <h2>On iPhone</h2>
+        <p><strong>Remove the location when you share a photo</strong> (keeps it in your own library):</p>
+        <ol>
+          <li>Open the photo in the Photos app and tap the Share button.</li>
+          <li>Tap <strong>Options</strong> at the top of the share sheet.</li>
+          <li>Turn off <strong>Location</strong>, tap Done, and share as usual.</li>
+        </ol>
+        <p>
+          <strong>Remove the location from the photo itself:</strong> open the photo, swipe up or tap the info button,
+          tap the location, and choose <strong>No Location</strong>. iPhone keeps the original so you can revert later,
+          so if the file must be clean everywhere, use the share option or Privacy Clean on the exported copy.
+        </p>
+        <p>
+          <strong>Stop new photos recording location:</strong> go to Settings → Privacy &amp; Security → Location
+          Services → Camera and choose <strong>Never</strong>. The exact menu names can differ slightly between iOS
+          versions.
+        </p>
+
+        <h2>On Android</h2>
+        <p><strong>Samsung Galaxy (Gallery app):</strong></p>
+        <ul>
+          <li>When sharing: long-press the photo, tap Share, and tick <strong>Remove location data</strong> before choosing an app. Your original keeps its location.</li>
+          <li>To remove it from the photo itself: open the photo&apos;s details, tap Edit, remove the location and save. This usually can&apos;t be undone.</li>
+        </ul>
+        <p>
+          <strong>Google Photos and other phones:</strong> options vary by phone and app version. Some let you remove the
+          location from a photo&apos;s details panel; others don&apos;t. If you can&apos;t find the option, open the
+          photo in a browser and use <A href="/analyzer">Privacy Clean</A> instead.
+        </p>
+        <p>
+          <strong>Stop new photos recording location:</strong> open your Camera app&apos;s settings and turn off
+          location tags, or remove the Camera app&apos;s location permission in Android settings.
+        </p>
+
+        <h2>Don&apos;t social apps remove it anyway?</h2>
+        <p>
+          Often, but not always. Instagram and Facebook generally strip GPS from the copies other people can see, though
+          the platform may keep the original on its servers. Messaging apps vary, and sending a photo as a
+          <em> file</em> or <em>document</em> (in WhatsApp, Telegram or email) usually keeps all of its metadata.
+          Website uploads, cloud links, marketplaces and forums may keep everything. The safe habit: clean the photo
+          yourself before you share it.
+        </p>
+
+        <h2>Good to know</h2>
+        <ul>
+          <li>Removing metadata doesn&apos;t change where an image came from. An AI-generated image stays AI-generated, and removing its label to mislead people isn&apos;t what this is for.</li>
+          <li>Colour profiles are kept, so cleaned photos look the same.</li>
+          <li>Screenshots also drop metadata, but they lower quality and can capture other things on your screen.</li>
+          <li>Without an account, OriginLens gives you one free image check a day; a free account makes it unlimited.</li>
+        </ul>
+
+        <h2>Frequently asked questions</h2>
+        <h3>Does removing metadata reduce photo quality?</h3>
+        <p>
+          Not with Privacy Clean: it removes the metadata blocks and copies the picture data unchanged. Some other tools
+          re-save the image, which can reduce quality slightly.
+        </p>
+        <h3>Can someone see where my photo was taken?</h3>
+        <p>
+          Yes, if the file still has GPS data and they get the original. Anyone can read it with a free metadata viewer.
+          Check your photo in the <A href="/analyzer">Image Analyzer</A> to see exactly what it reveals.
+        </p>
+        <h3>Is my photo uploaded when I clean it?</h3>
+        <p>No. OriginLens reads and cleans the file in your browser, and the cleaned copy is created on your device.</p>
+      </>
+    ),
+  },
+  {
     slug: "check-chatgpt-gemini-images",
     title: "Was It Made by ChatGPT or Gemini? How to Check an Image",
     description:
