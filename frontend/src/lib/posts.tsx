@@ -16,6 +16,123 @@ const A = ({ href, children }: { href: string; children: ReactNode }) => (
 
 export const POSTS: Post[] = [
   {
+    slug: "linkedin-content-credentials-label",
+    title: "LinkedIn's \"CR\" Content Credentials Label, Explained",
+    description:
+      "What the small CR label on LinkedIn images means, why it appeared on your post, what it does and doesn't prove, and how to check a photo before you upload.",
+    date: "2026-10-28",
+    keywords: [
+      "content credentials linkedin",
+      "content credentials label linkedin",
+      "content credentials label added",
+      "linkedin CR label",
+      "linkedin AI label image",
+      "C2PA LinkedIn",
+    ],
+    body: (
+      <>
+        <p>
+          You upload a photo to LinkedIn and a small <strong>&quot;CR&quot;</strong> icon appears on it. Or you notice
+          the label on someone else&apos;s post and wonder whether it means the image is fake. Here is what the label
+          actually is, why it shows up, and how to check an image yourself before you post it.
+        </p>
+
+        <h2>The short answer</h2>
+        <p>
+          &quot;CR&quot; stands for <strong>Content Credentials</strong>. LinkedIn shows it when an image or video
+          carries a signed provenance record made with the C2PA standard. LinkedIn does not run its own AI detector to
+          add the label: it simply reads a record that was already inside the file, written by the camera, app or AI
+          tool that made or edited it.
+        </p>
+
+        <h2>Why the label appeared on your image</h2>
+        <p>The label appears when your file already contains Content Credentials. Common sources:</p>
+        <ul>
+          <li><strong>AI image generators</strong> that add them automatically, such as OpenAI&apos;s image tools and Adobe Firefly.</li>
+          <li><strong>Editing apps</strong>, such as Adobe Photoshop or Lightroom, when Content Credentials are switched on, including when you used a generative AI feature on part of a real photo.</li>
+          <li><strong>Google&apos;s generative AI tools</strong>, which record AI steps in the image&apos;s history.</li>
+          <li><strong>Some cameras and phones</strong> that sign photos at capture.</li>
+        </ul>
+        <p>
+          A common surprise: you took a real photo, but used an AI tool to remove a background or extend the frame. That
+          step can be recorded, so the label appears even though the photo started as real.
+        </p>
+
+        <h2>What you see when you click it</h2>
+        <p>Clicking the label opens a short summary of the record. Depending on what the file contains, it can show:</p>
+        <ul>
+          <li>the app or device used to create or edit the content;</li>
+          <li>whether AI was used to generate all or part of it;</li>
+          <li>who signed the record (the issuer) and when.</li>
+        </ul>
+        <p>
+          LinkedIn rolled the feature out gradually, and the label&apos;s exact look and position have varied, so it may
+          look slightly different on your account.
+        </p>
+
+        <h2>What the label does not mean</h2>
+        <ul>
+          <li><strong>It is not an accusation.</strong> It reports what the file says about itself. Plenty of real, honest photos carry it.</li>
+          <li><strong>It does not prove an image is true.</strong> A valid record shows how the file was made and that the record wasn&apos;t changed after signing, not that the scene is real or the caption accurate.</li>
+          <li><strong>No label doesn&apos;t mean &quot;real&quot;.</strong> Most AI tools still don&apos;t add Content Credentials, and screenshots and many apps strip them. LinkedIn itself says it can&apos;t yet identify and label all AI-generated content.</li>
+        </ul>
+
+        <h2>How to check an image before you post it</h2>
+        <ol>
+          <li>Open the <A href="/analyzer">OriginLens Image Analyzer</A> and add your image. It runs in your browser; the image isn&apos;t uploaded.</li>
+          <li>Check the <strong>File labels</strong> card. If the file declares AI generation, that is very likely what LinkedIn will show.</li>
+          <li>Open the <strong>Provenance</strong> tab to see the full Content Credentials: the tools, the signer, the date and every AI source label.</li>
+        </ol>
+        <p>
+          OriginLens reads <em>every</em> step in the file&apos;s history, not just the last one. That matters: an image
+          made with a generative AI tool and then watermarked or converted can show the AI step only in an earlier
+          layer of the record.
+        </p>
+
+        <h2>Can you remove the label?</h2>
+        <p>
+          Technically, yes. The label comes from data in the file, and tools like OriginLens Privacy Clean can remove
+          Content Credentials along with other metadata, for example to strip your device details or location before
+          sharing.
+        </p>
+        <p>
+          But think about why you would. Removing the record doesn&apos;t change how the image was made, and if the
+          image is AI-generated or AI-edited, hiding that can mislead people and may break LinkedIn&apos;s rules or
+          your employer&apos;s. If the label is accurate, it&apos;s usually better to keep it and add context in your
+          post, such as &quot;background extended with AI&quot;.
+        </p>
+
+        <h2>Privacy: what the record reveals</h2>
+        <p>
+          Content Credentials are readable by anyone who downloads the file. Depending on your settings they can include
+          your name, the software and device you used, and edit history. Check what&apos;s in the file before you post,
+          especially for personal photos.
+        </p>
+
+        <h2>Frequently asked questions</h2>
+        <h3>Does the CR label mean LinkedIn thinks my image is AI?</h3>
+        <p>
+          Not by itself. It means the file carries Content Credentials. Click it: the summary says whether AI was
+          involved, based on what the creating tool recorded.
+        </p>
+        <h3>Why doesn&apos;t every AI image on LinkedIn have the label?</h3>
+        <p>
+          Because the label depends on the record being in the file. Many AI tools don&apos;t add one, and screenshots
+          or re-saves often remove it. See our guide on{" "}
+          <A href="/blog/how-to-check-if-an-image-is-ai-generated">how to tell if an image is AI-generated</A> for the
+          other checks.
+        </p>
+        <h3>How do I see the full details?</h3>
+        <p>
+          Add the image to the <A href="/analyzer">OriginLens Image Analyzer</A> and open the Provenance tab, or use
+          the official Content Credentials Verify site. Our{" "}
+          <A href="/blog/free-ai-image-checkers-compared">comparison of free AI image checkers</A> explains the
+          differences.
+        </p>
+      </>
+    ),
+  },
+  {
     slug: "free-ai-image-checkers-compared",
     title: "Free AI Image Checkers Compared: Which One to Use",
     description:
