@@ -7,7 +7,7 @@ import { Logo } from "./Logo";
 const COLS = [
   { title: "Product", links: [["/analyzer", "Image Analyzer"], ["/text", "Text and Blog Intelligence"], ["/blog", "Blog"]] },
   { title: "Account", links: [["/login", "Log in"], ["/signup", "Sign up"]] },
-  { title: "Legal", links: [["/privacy", "Privacy Policy"]] },
+  { title: "Company", links: [["/about", "About"], ["/privacy", "Privacy Policy"]] },
 ];
 
 export function Footer() {

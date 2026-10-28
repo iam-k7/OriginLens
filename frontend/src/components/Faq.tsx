@@ -2,34 +2,8 @@
 
 import Link from "next/link";
 import { useId, useState } from "react";
+import { FAQS } from "@/lib/faqs";
 import { LogoMark } from "./Logo";
-
-const FAQS = [
-  {
-    q: "Do you store my images or text?",
-    a: "No. Files and text are processed in memory and discarded once you get your result. We keep only usage records (which tool ran, how long it took) — never the content itself.",
-  },
-  {
-    q: "Can OriginLens tell if an image is AI-generated?",
-    a: "It shows the evidence the file carries: Content Credentials (C2PA), IPTC digital-source tags and generator fingerprints. You can also run an experimental pixel check (an open model that runs on your device) that gives an AI likelihood. It can miss AI images, so a low score does not prove an image is real — and missing metadata proves nothing either way.",
-  },
-  {
-    q: "What does Privacy Clean remove?",
-    a: "GPS location, EXIF, XMP, IPTC, Content Credentials and comments from JPEG, PNG and WEBP files. The pixels are copied byte-for-byte and the color profile is kept, so quality doesn't change.",
-  },
-  {
-    q: "Does removing metadata change where an image came from?",
-    a: "No. It removes information embedded in the file; it doesn't change the image's true origin. An AI-generated image stays AI-generated.",
-  },
-  {
-    q: "Which files can I upload?",
-    a: "JPEG, PNG, WEBP and GIF up to 15 MB. We check the real file signature, not the extension. SVG is rejected because it can carry scripts.",
-  },
-  {
-    q: "Is the text tool an AI detector?",
-    a: "No. It measures explainable style signals sentence by sentence. Rewrite Naturally and Deep Scan send your text to our AI providers to produce their result; the standard scan runs on our servers only.",
-  },
-];
 
 export function Faq() {
   const [open, setOpen] = useState<number | null>(0);

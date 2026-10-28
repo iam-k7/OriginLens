@@ -16,6 +16,137 @@ const A = ({ href, children }: { href: string; children: ReactNode }) => (
 
 export const POSTS: Post[] = [
   {
+    slug: "free-ai-image-checkers-compared",
+    title: "Free AI Image Checkers Compared: Which One to Use",
+    description:
+      "An honest comparison of free ways to check if an image is AI-generated: OriginLens, Content Credentials Verify, Sightengine and reverse image search.",
+    date: "2026-10-28",
+    keywords: [
+      "free AI image checker",
+      "AI image detector comparison",
+      "Content Credentials Verify alternative",
+      "C2PA checker",
+      "best AI image detector",
+      "check if image is AI generated free",
+    ],
+    body: (
+      <>
+        <p>
+          There is no single tool that can tell you, with certainty, whether any image was made by AI. There are,
+          however, several free tools that each answer part of the question well. This guide compares them honestly,
+          including our own, so you can pick the right one for the job.
+        </p>
+        <p>
+          Tool features change often. What follows is based on what each tool says it does as of October 2026; check
+          the tool&apos;s own site before relying on it.
+        </p>
+
+        <h2>The three kinds of check</h2>
+        <ul>
+          <li>
+            <strong>Provenance (Content Credentials / C2PA):</strong> reads a signed record inside the file that can
+            say the image was AI-generated. Strongest evidence when present, but often stripped by screenshots and
+            social apps.
+          </li>
+          <li>
+            <strong>Metadata:</strong> reads EXIF, XMP and IPTC fields, such as an AI source label or a generator name.
+            Useful, but easy to edit or remove.
+          </li>
+          <li>
+            <strong>Pixel detectors:</strong> AI models that look at the picture itself. They work even without
+            metadata, but they make mistakes in both directions, especially on new generators and compressed images.
+          </li>
+        </ul>
+
+        <h2>The tools</h2>
+
+        <h3>OriginLens</h3>
+        <p>
+          <A href="/analyzer">OriginLens</A> combines all three checks in one page. It reads Content Credentials with
+          the official C2PA library and checks the signature, including AI labels from earlier editing steps (for
+          example, Google&apos;s generative AI images that later had a watermark added). It also shows all
+          EXIF/XMP/IPTC/GPS metadata and can remove it without re-encoding. Its pixel check (the open Community
+          Forensics model) is optional and clearly labelled experimental.
+        </p>
+        <ul>
+          <li><strong>Best for:</strong> one place to see every signal, plus removing private metadata before sharing.</li>
+          <li><strong>Privacy:</strong> runs in your browser; images are not uploaded.</li>
+          <li><strong>Limits:</strong> one free image check a day without an account (unlimited with a free account). The pixel check misses some AI images, and the signer is not checked against a trusted-issuer list.</li>
+        </ul>
+
+        <h3>Content Credentials Verify (contentcredentials.org/verify)</h3>
+        <p>
+          The official verifier from the Content Authenticity Initiative. It checks whether a file&apos;s Content
+          Credentials are valid and shows a readable summary of who signed it and how it was made.
+        </p>
+        <ul>
+          <li><strong>Best for:</strong> the authoritative answer on whether Content Credentials are valid and who issued them.</li>
+          <li><strong>Limits:</strong> it only helps when the file still has Content Credentials, and it doesn&apos;t inspect other metadata or the pixels.</li>
+        </ul>
+
+        <h3>Sightengine C2PA check</h3>
+        <p>
+          Sightengine, a company that sells image-moderation APIs, offers a free in-browser C2PA checker. It also
+          advertises AI and deepfake detection on the pixels through its paid API.
+        </p>
+        <ul>
+          <li><strong>Best for:</strong> a quick C2PA check, and businesses that need detection at scale through an API.</li>
+          <li><strong>Limits:</strong> pixel detection is part of the commercial product; check their site for current free limits.</li>
+        </ul>
+
+        <h3>Reverse image search (Google Lens, Bing, TinEye)</h3>
+        <p>
+          Not an AI detector, but often the most useful step when a file has no metadata. Finding the earliest copy of
+          an image can lead to the original upload, the generator&apos;s gallery, or a fact-check.
+        </p>
+        <ul>
+          <li><strong>Best for:</strong> images that were screenshotted or shared through social apps.</li>
+          <li><strong>Limits:</strong> your image is sent to the search provider.</li>
+        </ul>
+
+        <h2>Quick comparison</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="border-b border-line text-ink"><th className="py-2 pr-4">Tool</th><th className="py-2 pr-4">Content Credentials</th><th className="py-2 pr-4">Other metadata</th><th className="py-2 pr-4">Pixel check</th><th className="py-2">Removes metadata</th></tr>
+            </thead>
+            <tbody>
+              <tr className="border-b border-line"><td className="py-2 pr-4">OriginLens</td><td className="py-2 pr-4">Yes, with signature check</td><td className="py-2 pr-4">Yes</td><td className="py-2 pr-4">Experimental, on device</td><td className="py-2">Yes</td></tr>
+              <tr className="border-b border-line"><td className="py-2 pr-4">Content Credentials Verify</td><td className="py-2 pr-4">Yes (official)</td><td className="py-2 pr-4">No</td><td className="py-2 pr-4">No</td><td className="py-2">No</td></tr>
+              <tr className="border-b border-line"><td className="py-2 pr-4">Sightengine</td><td className="py-2 pr-4">Yes</td><td className="py-2 pr-4">Partly</td><td className="py-2 pr-4">Paid API</td><td className="py-2">No</td></tr>
+              <tr><td className="py-2 pr-4">Reverse image search</td><td className="py-2 pr-4">No</td><td className="py-2 pr-4">No</td><td className="py-2 pr-4">No (finds copies)</td><td className="py-2">No</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>Which one should you use?</h2>
+        <ol>
+          <li>Start with a tool that reads Content Credentials and metadata, such as <A href="/analyzer">OriginLens</A>. If it finds a signed AI label, you have strong evidence.</li>
+          <li>If the label&apos;s signer matters (for example, in journalism), confirm it with the official Content Credentials Verify tool.</li>
+          <li>If the file has no metadata, run a reverse image search to find the original.</li>
+          <li>Treat any pixel-detector score as a hint, never a verdict, in either direction.</li>
+        </ol>
+        <p>
+          For the full method, read our guide on{" "}
+          <A href="/blog/how-to-check-if-an-image-is-ai-generated">how to check if an image is AI-generated</A>.
+        </p>
+
+        <h2>Frequently asked questions</h2>
+        <h3>Which free AI image checker is the most accurate?</h3>
+        <p>
+          For images that still carry Content Credentials, any tool that reads them correctly gives near-certain
+          answers. For images without them, no free tool is reliable: pixel detectors miss new generators and
+          sometimes flag real photos.
+        </p>
+        <h3>Is OriginLens the same as the Origin Lens app?</h3>
+        <p>
+          No. OriginLens (www.originlens.bond) is a separate website, not affiliated with the &quot;Origin Lens&quot;
+          iOS app or research project. See <A href="/about">About OriginLens</A>.
+        </p>
+      </>
+    ),
+  },
+  {
     slug: "ai-text-humanizer-and-writing-analyzer",
     title: "AI Text Humanizer and Writing Analyzer: How It Works",
     description:

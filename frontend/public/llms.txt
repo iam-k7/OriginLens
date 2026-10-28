@@ -1,0 +1,26 @@
+# OriginLens
+
+> OriginLens (www.originlens.bond) is a free web tool that shows where an image or a piece of text comes from. It checks images for AI labels and Content Credentials (C2PA), shows and removes hidden photo metadata such as GPS location, runs an experimental AI-image pixel check, and analyses and rewrites text. Image checks run in the visitor's browser; images are not uploaded.
+
+OriginLens is a website at www.originlens.bond. It is not affiliated with the "Origin Lens" iOS app or the "Origin Lens" research paper on arXiv, which are separate projects with a similar name.
+
+Key facts:
+- Free to use. Without an account: one image check and one text check per day. With a free account: unlimited checks and 10 AI rewrites per day.
+- It never claims certainty: it reports the evidence a file carries, says when there is none, and labels its pixel check as experimental.
+- No AI-text detector score is shown; the text tool measures writing style only.
+
+## Tools
+
+- [Image Analyzer](https://www.originlens.bond/analyzer): Content Credentials (C2PA) with signature check, AI source labels, EXIF/XMP/IPTC/GPS metadata, lossless metadata removal (Privacy Clean), and an experimental pixel check (Community Forensics model, runs on the device).
+- [Text and Blog Intelligence](https://www.originlens.bond/text): sentence-by-sentence style signals, an AI style review (Deep Scan), and rewriting in five tones plus a Humanize option.
+
+## Guides
+
+- [How to check if an image is AI-generated](https://www.originlens.bond/blog/how-to-check-if-an-image-is-ai-generated): Content Credentials, metadata, reverse image search, and why detectors get it wrong.
+- [AI text humanizer and writing analyzer: how it works](https://www.originlens.bond/blog/ai-text-humanizer-and-writing-analyzer): what each style signal means and how Humanize works.
+- [Free AI image checkers compared](https://www.originlens.bond/blog/free-ai-image-checkers-compared): OriginLens, Content Credentials Verify, Sightengine and others.
+
+## About
+
+- [About OriginLens](https://www.originlens.bond/about)
+- [Privacy Policy](https://www.originlens.bond/privacy)

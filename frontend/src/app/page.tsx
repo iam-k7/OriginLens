@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Faq } from "@/components/Faq";
 import { LogoMark } from "@/components/Logo";
+import { FAQS } from "@/lib/faqs";
 import { SITE_URL } from "@/lib/site";
 
 // Set here, not in the root layout, so other pages don't inherit the home page's canonical address.
@@ -21,6 +22,10 @@ const JSON_LD = {
       description: "Check if an image is AI-generated, verify Content Credentials (C2PA), and view or remove hidden photo metadata.",
       offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
       publisher: { "@id": `${SITE_URL}/#org` },
+    },
+    {
+      "@type": "FAQPage",
+      mainEntity: FAQS.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
     },
   ],
 };
