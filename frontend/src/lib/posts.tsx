@@ -16,6 +16,125 @@ const A = ({ href, children }: { href: string; children: ReactNode }) => (
 
 export const POSTS: Post[] = [
   {
+    slug: "what-are-content-credentials-c2pa",
+    title: "What Are Content Credentials (C2PA)? A Plain-English Guide",
+    description:
+      "Content Credentials (C2PA) explained simply: what the signed record inside an image contains, who adds it, what it proves, its limits, and how to read it.",
+    date: "2026-10-29",
+    keywords: [
+      "c2pa content credentials",
+      "what is c2pa",
+      "c2pa meaning",
+      "content credentials",
+      "c2pa standard",
+      "c2pa manifest",
+      "content credentials ai",
+    ],
+    body: (
+      <>
+        <p>
+          You may have seen a small &quot;CR&quot; icon on an image, or read that ChatGPT and Google now
+          &quot;label&quot; their AI images. Both are <strong>Content Credentials</strong>, built on an open standard
+          called <strong>C2PA</strong>. This guide explains what they are, in plain English.
+        </p>
+
+        <h2>The one-sentence version</h2>
+        <p>
+          Content Credentials are a <strong>signed record stored inside a file</strong> that says how the image (or video
+          or audio) was made and changed, such as which camera or app created it and whether AI was used, protected so
+          that tampering can be detected.
+        </p>
+
+        <h2>What does C2PA stand for?</h2>
+        <p>
+          C2PA is the <strong>Coalition for Content Provenance and Authenticity</strong>, formed in 2021 by companies
+          including Adobe, Arm, the BBC, Intel and Microsoft. It publishes the open technical standard. &quot;Content
+          Credentials&quot; is the friendly name for records made with that standard. The Content Authenticity Initiative,
+          a related Adobe-led community, promotes their use.
+        </p>
+
+        <h2>What&apos;s inside a Content Credential?</h2>
+        <p>The record (called a <em>manifest</em>) has a few parts:</p>
+        <ul>
+          <li><strong>Assertions:</strong> statements about the content, such as &quot;created with this app&quot;, &quot;cropped&quot;, &quot;background generated with AI&quot;, or the files it was made from.</li>
+          <li><strong>Digital source type:</strong> a standard label for how the content was made. <code>trainedAlgorithmicMedia</code> means AI-generated; <code>compositeWithTrainedAlgorithmicMedia</code> means partly AI.</li>
+          <li><strong>A link to the exact content:</strong> a cryptographic fingerprint (hash) of the image, so the record can&apos;t simply be copied onto a different picture.</li>
+          <li><strong>A signature</strong> from whoever issued the record (an app maker, camera maker or AI company), with the date it was signed.</li>
+        </ul>
+        <p>
+          Each time a supporting app edits the image, it can add a new layer to the record, so you get a history:
+          created here, edited there, exported as PNG. The earlier layers are kept as &quot;ingredients&quot;.
+        </p>
+
+        <h2>Who adds Content Credentials?</h2>
+        <ul>
+          <li><strong>AI image tools:</strong> OpenAI&apos;s image tools, Adobe Firefly and Google&apos;s newer image models, among others.</li>
+          <li><strong>Editing apps:</strong> Adobe Photoshop and Lightroom, when the option is on.</li>
+          <li><strong>Cameras and phones:</strong> Google&apos;s Pixel 10 signs photos in its camera app, and some cameras from makers such as Leica and Sony can sign photos at capture.</li>
+          <li><strong>Platforms:</strong> LinkedIn reads them and shows a &quot;CR&quot; label; see <A href="/blog/linkedin-content-credentials-label">what LinkedIn&apos;s CR label means</A>.</li>
+        </ul>
+
+        <h2>What Content Credentials prove, and what they don&apos;t</h2>
+        <p><strong>They can show:</strong></p>
+        <ul>
+          <li>which tool or device made or edited the file, and whether AI was involved, according to that tool;</li>
+          <li>who signed the record and when;</li>
+          <li>that the record and the image haven&apos;t been changed since signing (if the signature checks out).</li>
+        </ul>
+        <p><strong>They can&apos;t show:</strong></p>
+        <ul>
+          <li><strong>That the picture is true.</strong> A real photo can still be staged or captioned misleadingly.</li>
+          <li><strong>That an image without them is real.</strong> Most images have none, because many tools don&apos;t add them and screenshots and social apps often strip them.</li>
+          <li><strong>That the signer is trustworthy.</strong> A valid signature proves who signed, not that they told the truth. Verifiers check signers against a list of trusted issuers for this reason.</li>
+        </ul>
+
+        <h2>Content Credentials vs. watermarks</h2>
+        <p>
+          Content Credentials live in the file&apos;s data, so anyone can read them with an open tool, but they can be
+          removed. Invisible watermarks such as Google&apos;s SynthID are woven into the pixels and survive screenshots
+          better, but only the company that made them can check them. The two work best together; see{" "}
+          <A href="/blog/check-chatgpt-gemini-images">how to check images from ChatGPT and Gemini</A>.
+        </p>
+
+        <h2>How to read the Content Credentials in an image</h2>
+        <ol>
+          <li>Open the <A href="/analyzer">OriginLens Image Analyzer</A> and add the image. It runs in your browser; nothing is uploaded.</li>
+          <li>The <strong>File labels</strong> card tells you if the record declares AI generation, and whether the signature checks out.</li>
+          <li>The <strong>Provenance</strong> tab shows the full record: the tool, the signer, the date, every digital source type and any validation issues.</li>
+        </ol>
+        <p>
+          OriginLens reads every layer of the history, so an AI step recorded one edit back (for example, before a
+          watermark or format conversion) is still found. For an official check of whether the signer is on the trusted
+          list, you can also use the Content Authenticity Initiative&apos;s Verify site.
+        </p>
+
+        <h2>Privacy: what Content Credentials reveal about you</h2>
+        <p>
+          A record can include your name, your device, the apps you used and your edit history, and anyone with the
+          file can read it. If that matters, check what&apos;s in your file before you share it, and see our guide on{" "}
+          <A href="/blog/remove-metadata-and-gps-from-photos">removing metadata from photos</A>.
+        </p>
+
+        <h2>Frequently asked questions</h2>
+        <h3>Is C2PA the same as Content Credentials?</h3>
+        <p>
+          Almost. C2PA is the standard and the group that writes it; Content Credentials are the records made with it.
+          People use the two terms interchangeably.
+        </p>
+        <h3>Do all AI images have Content Credentials?</h3>
+        <p>
+          No. Many AI tools still don&apos;t add them, and they are easy to lose when an image is screenshotted or
+          re-uploaded. A missing record proves nothing either way.
+        </p>
+        <h3>Can Content Credentials be faked?</h3>
+        <p>
+          Changing an existing record breaks its signature, which a verifier will show. But someone can create a new
+          record with false claims and sign it themselves, which is why who signed it matters as much as what it says.
+        </p>
+      </>
+    ),
+  },
+  {
     slug: "remove-metadata-and-gps-from-photos",
     title: "How to Remove Metadata and GPS Location From Photos",
     description:
