@@ -79,7 +79,9 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const codeSent = sentAt !== null;
   const secondsLeft = codeSent ? Math.max(0, CODE_SECONDS - Math.floor((now - sentAt) / 1000)) : 0;
   const canSend = name.trim().length > 1 && /^\S+@\S+\.\S+$/.test(email) && secondsLeft === 0;
-  const canCreate = verified && name.trim() !== "" && country !== "" && password !== "" && confirm !== "";
+  // Only a real entry from the list counts; matching ignores case so "india" works.
+  const countryMatch = countries.find((c) => c.toLowerCase() === country.trim().toLowerCase());
+  const canCreate = verified && name.trim() !== "" && !!countryMatch && password !== "" && confirm !== "";
 
   async function oauth(provider: "google" | "github") {
     if (!supabase) { setError("Sign-in is not configured on this deployment."); return; }
@@ -122,7 +124,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
     if (password !== confirm) { setError("The passwords do not match."); return; }
     setBusy(true); setError(null);
     // Saving the country completes the profile, which makes Supabase send the welcome email.
-    const { error } = await supabase.auth.updateUser({ password, data: { full_name: name.trim(), country } });
+    const { error } = await supabase.auth.updateUser({ password, data: { full_name: name.trim(), country: countryMatch } });
     setBusy(false);
     if (error) { setError(error.message); return; }
     setInfo(null);
@@ -224,11 +226,14 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
             </p>
           )}
 
-          {/* Options get their own colours: Windows browsers draw the open list with the select's dark background. */}
-          <select aria-label="Country" value={country} onChange={(e) => setCountry(e.target.value)} className={`${FIELD} pr-12`}>
-            <option value="" disabled className="bg-ink-2 text-milk">Select your country</option>
-            {countries.map((c) => <option key={c} value={c} className="bg-ink-2 text-milk">{c}</option>)}
-          </select>
+          {/* Type to search: the browser filters the suggestion list as you type. */}
+          <input aria-label="Country" list="country-list" autoComplete="country-name" placeholder="Search your country"
+            value={country} onChange={(e) => setCountry(e.target.value)}
+            onBlur={() => { if (countryMatch) setCountry(countryMatch); }} className={FIELD} />
+          <datalist id="country-list">
+            {countries.map((c) => <option key={c} value={c} />)}
+          </datalist>
+          {country.trim() !== "" && !countryMatch && <p className="px-6 text-xs text-dim">Pick your country from the list.</p>}
 
           <input type="password" aria-label="Create password" autoComplete="new-password" placeholder="Create password" minLength={10}
             value={password} disabled={!verified} onChange={(e) => setPassword(e.target.value)} className={FIELD} />
