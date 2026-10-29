@@ -53,7 +53,7 @@ export default function TextPage() {
       <h1 className="mt-2 font-display text-3xl font-medium tracking-tight sm:text-4xl">Read your writing clearly</h1>
       <p className="mt-2 max-w-2xl text-muted">Explainable style signals, sentence by sentence — and a rewrite that keeps your meaning. Your text is not stored.</p>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
+      <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="space-y-4">
           <Tabs<Mode> value={mode} onChange={setMode} tabs={[{ id: "analyze", label: "Analyze" }, { id: "rewrite", label: "Rewrite Naturally" }]} />
           <div className="card p-4">

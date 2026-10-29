@@ -155,7 +155,7 @@ export default function AnalyzerPage() {
       <h1 className="mt-2 font-display text-3xl font-medium tracking-tight sm:text-4xl">Inspect, verify and clean an image</h1>
       <p className="mt-2 max-w-2xl text-muted">Metadata, Content Credentials and AI signals — read from the file itself, in your browser. Nothing is uploaded.</p>
 
-      <div className="mt-8 grid items-start gap-6 lg:grid-cols-[440px_minmax(0,1fr)]">
+      <div className="mt-8 grid grid-cols-1 items-start gap-6 lg:grid-cols-[440px_minmax(0,1fr)]">
         <div className="space-y-4">
           <div
             onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
@@ -255,7 +255,7 @@ export default function AnalyzerPage() {
               />
 
               {tab === "overview" && (
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <Section title="Technical">
                     <KV data={{ Format: d.format, Dimensions: d.width ? `${d.width} × ${d.height}` : null, "File size": formatBytes(d.bytes), "SHA-256": d.sha256 }} />
                   </Section>
@@ -387,7 +387,7 @@ function CleanPanel({ items, supported, cats, setCats, onClean, cleaned }: {
           <>
             <fieldset>
               <legend className="text-sm text-muted">Choose what to remove.</legend>
-              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {items.map(({ category, bytes }) => (
                   <label key={category} className={`flex cursor-pointer gap-3 rounded-xl border p-3 text-sm transition ${cats.includes(category) ? "border-brand-300 bg-brand-50" : "border-line"}`}>
                     <input type="checkbox" className="mt-0.5 accent-brand-500" checked={cats.includes(category)}
