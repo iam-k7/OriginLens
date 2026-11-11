@@ -1,4 +1,0 @@
-{
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "ignoreCommand": "echo 'The site lives in frontend/. Set this project's Root Directory to frontend to build it.' && exit 0"
-}
