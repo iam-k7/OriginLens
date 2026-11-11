@@ -1,0 +1,18 @@
+# Frontend dependencies, for reference. Install with: npm ci  (package-lock.json is the source of truth)
+# Requires Node 20+ (built with Node 24).
+
+# runtime
+@supabase/supabase-js@2.118.0
+next@16.4.2
+react@19.3.0
+react-dom@19.3.0
+
+# dev
+@tailwindcss/turbopack@4.3.3
+@types/node@20.19.43
+@types/react@19.3.0
+@types/react-dom@19.3.0
+eslint@9.39.5
+eslint-config-next@16.4.2
+tailwindcss@4.3.3
+typescript@5.9.3

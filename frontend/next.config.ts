@@ -1,0 +1,48 @@
+import type { NextConfig } from "next";
+
+const api = process.env.NEXT_PUBLIC_API_URL ?? ""; // empty: the API is this site's own /api routes
+const supabase = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+
+const csp = [
+  "default-src 'self'",
+  // wasm-unsafe-eval and the blob worker: the C2PA reader runs as WebAssembly in a worker.
+  "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'" + (process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""),
+  "worker-src 'self' blob:",
+  "style-src 'self' 'unsafe-inline'",
+  // Profile photos from Google and GitHub sign-ins, shown in the navbar avatar.
+  "img-src 'self' blob: data: https://lh3.googleusercontent.com https://avatars.githubusercontent.com",
+  "font-src 'self'",
+  `connect-src 'self' ${api} ${supabase}`.trim(),
+  "frame-ancestors 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+].join("; ");
+
+const nextConfig: NextConfig = {
+  output: "standalone",
+  cacheComponents: true,
+  partialPrefetching: true,
+  turbopack: {
+    rules: {
+      "*.css": {
+        loaders: ["@tailwindcss/turbopack"],
+        as: "*.css",
+      },
+    },
+  },
+  poweredByHeader: false,
+  async headers() {
+    return [{
+      source: "/:path*",
+      headers: [
+        { key: "Content-Security-Policy", value: csp },
+        { key: "X-Content-Type-Options", value: "nosniff" },
+        { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+        { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+        { key: "X-Frame-Options", value: "DENY" },
+      ],
+    }];
+  },
+};
+
+export default nextConfig;

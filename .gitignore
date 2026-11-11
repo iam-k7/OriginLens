@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ─────────────────────────────────────────────────────────────────────────
 # OriginLens — .gitignore
 # Anything potentially sensitive or regenerable should be listed here.
@@ -110,3 +111,31 @@ junit.xml
 test-results/
 playwright-report/
 .playwright/
+=======
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Node / Next
+node_modules/
+.next/
+out/
+
+# Tooling
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.db
+>>>>>>> e1683f96e17add6e1bf1d5fa058ddf6f18bdaeef
