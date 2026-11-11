@@ -10,11 +10,11 @@ FROM node:20-alpine AS build
 WORKDIR /app
 
 # Install deps separately for cache
-COPY apps/frontend/package.json apps/frontend/package-lock.json* ./
+COPY frontend/package.json frontend/package-lock.json* ./
 RUN npm ci || npm install
 
 # Build
-COPY apps/frontend/ ./
+COPY frontend/ ./
 RUN npm run build -- --configuration=production
 
 # ── Runtime stage ───────────────────────────────────────────────────────

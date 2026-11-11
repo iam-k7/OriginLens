@@ -26,11 +26,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Dependencies first (better layer caching)
-COPY apps/backend/pyproject.toml /app/pyproject.toml
+COPY backend/pyproject.toml /app/pyproject.toml
 RUN pip install --upgrade pip && pip install -e .
 
 # App code
-COPY apps/backend /app
+COPY backend /app
 
 EXPOSE 8000
 
